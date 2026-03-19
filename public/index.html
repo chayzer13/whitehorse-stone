@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Horse Stone — Тротуарная плитка и бордюры</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="container header__inner">
+            <a href="#" class="logo">
+                <img src="logo.svg" alt="White Horse Stone" class="logo__img">
+                <span class="logo__text">White Horse Stone</span>
+            </a>
+            <nav class="nav" id="nav">
+                <a href="#catalog" class="nav__link">Каталог</a>
+                <a href="#calculator" class="nav__link">Расчёт</a>
+                <a href="#services" class="nav__link">Услуги</a>
+                <a href="#reviews" class="nav__link">Отзывы</a>
+                <a href="#faq" class="nav__link">FAQ</a>
+                <a href="#contacts" class="nav__link">Контакты</a>
+            </nav>
+            <button class="burger" id="burger" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="nav-overlay" id="navOverlay"></div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="container hero__inner">
+            <div class="hero__content">
+                <p class="hero__tag">Производство тротуарной плитки</p>
+                <h1 class="hero__title">Надёжная плитка <br>для вашего пространства</h1>
+                <p class="hero__desc">Производим брусчатку и бордюры высочайшего качества. Собственное производство, честные цены и гарантия долговечности на десятилетия.</p>
+                <div class="hero__actions">
+                    <a href="#catalog" class="btn btn--primary">Смотреть каталог</a>
+                    <a href="#calculator" class="btn btn--outline">Рассчитать стоимость</a>
+                </div>
+            </div>
+            <div class="hero__visual">
+                <div class="hero__pattern">
+                    <div class="hero__pattern-grid">
+                        <div class="tile t1"></div><div class="tile t2"></div><div class="tile t3"></div><div class="tile t4"></div>
+                        <div class="tile t5"></div><div class="tile t6"></div><div class="tile t7"></div><div class="tile t8"></div>
+                        <div class="tile t9"></div><div class="tile t10"></div><div class="tile t11"></div><div class="tile t12"></div>
+                        <div class="tile t13"></div><div class="tile t14"></div><div class="tile t15"></div><div class="tile t16"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero__stats">
+            <div class="container hero__stats-inner">
+                <div class="stat">
+                    <span class="stat__number">12+</span>
+                    <span class="stat__label">лет на рынке</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__number">500K</span>
+                    <span class="stat__label">м² уложено</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__number">50+</span>
+                    <span class="stat__label">видов продукции</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__number">1200+</span>
+                    <span class="stat__label">довольных клиентов</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== POPULAR PRODUCTS ===== -->
+    <section class="section popular" id="popular">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Хиты продаж</p>
+                <h2 class="section__title">Популярные товары</h2>
+                <p class="section__desc">Самые востребованные позиции нашего каталога, проверенные временем и тысячами клиентов</p>
+            </div>
+            <div class="popular__grid" id="popularGrid">
+                <!-- Товары загружаются из базы данных -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CALCULATOR ===== -->
+    <section class="section calculator" id="calculator">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Онлайн-калькулятор</p>
+                <h2 class="section__title">Предварительный расчёт стоимости</h2>
+                <p class="section__desc">Узнайте примерную стоимость материалов для вашего проекта за пару кликов</p>
+            </div>
+            <div class="calc">
+                <div class="calc__form">
+                    <div class="calc__group">
+                        <label class="calc__label">Тип продукции</label>
+                        <div class="calc__radio-group">
+                            <label class="calc__radio">
+                                <input type="radio" name="productType" value="paving" checked>
+                                <span>Брусчатка</span>
+                            </label>
+                            <label class="calc__radio">
+                                <input type="radio" name="productType" value="border">
+                                <span>Бордюры</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="calc__group" id="calcPavingType">
+                        <label class="calc__label">Вид брусчатки</label>
+                        <select class="calc__select" id="pavingSelect">
+                            <option value="">Загрузка...</option>
+                        </select>
+                    </div>
+
+                    <div class="calc__group hidden" id="calcBorderType">
+                        <label class="calc__label">Вид бордюра</label>
+                        <select class="calc__select" id="borderSelect">
+                            <option value="">Загрузка...</option>
+                        </select>
+                    </div>
+
+                    <div class="calc__group" id="calcArea">
+                        <label class="calc__label" id="calcAreaLabel">Площадь (м²)</label>
+                        <input type="number" class="calc__input" id="calcAreaInput" min="1" placeholder="Введите площадь" value="50">
+                    </div>
+
+                    <div class="calc__group">
+                        <label class="calc__label">Ваше имя</label>
+                        <input type="text" class="calc__input" id="calcName" placeholder="Введите имя" maxlength="50">
+                    </div>
+
+                    <div class="calc__group">
+                        <label class="calc__label">Телефон</label>
+                        <input type="tel" class="calc__input" id="calcPhone" placeholder="+7 (___) ___-__-__" maxlength="20">
+                    </div>
+
+                    <label class="consent-check">
+                        <input type="checkbox" id="calcConsent">
+                        <span>Нажимая кнопку, я соглашаюсь с <a href="privacy.html" target="_blank">политикой конфиденциальности</a></span>
+                    </label>
+                    <button class="btn btn--primary calc__btn" id="calcBtn">Рассчитать стоимость</button>
+                </div>
+
+                <div class="calc__result" id="calcResult">
+                    <div class="calc__result-icon">📐</div>
+                    <p class="calc__result-label">Предварительная стоимость</p>
+                    <p class="calc__result-value" id="calcValue">—</p>
+                    <p class="calc__result-note">* Окончательная цена может отличаться. Свяжитесь с нами для точного расчёта.</p>
+                    <button class="btn btn--outline calc__result-btn" onclick="openContactChoice()">Получить точный расчёт</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CATALOG ===== -->
+    <section class="section catalog" id="catalog">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Наша продукция</p>
+                <h2 class="section__title">Каталог</h2>
+                <p class="section__desc">Два направления — одно качество. Выберите категорию для просмотра</p>
+            </div>
+
+            <div class="catalog__tabs">
+                <button class="catalog__tab active" data-tab="paving">Брусчатка</button>
+                <button class="catalog__tab" data-tab="borders">Бордюры</button>
+            </div>
+
+            <!-- Брусчатка -->
+            <div class="catalog__content active" id="tab-paving">
+                <div class="catalog__grid">
+                    <!-- Загружается из базы данных -->
+                </div>
+            </div>
+
+            <!-- Бордюры -->
+            <div class="catalog__content" id="tab-borders">
+                <div class="catalog__grid">
+                    <!-- Загружается из базы данных -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SERVICES ===== -->
+    <section class="section services" id="services">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Что мы предлагаем</p>
+                <h2 class="section__title">Наши услуги</h2>
+                <p class="section__desc">Полный цикл — от производства до укладки «под ключ»</p>
+            </div>
+            <div class="services__grid">
+                <div class="service-card">
+                    <div class="service-card__icon">🏭</div>
+                    <h3 class="service-card__title">Производство</h3>
+                    <p class="service-card__desc">Собственный завод с современным оборудованием.<br>Контроль качества на каждом этапе, соответствие ГОСТам.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-card__icon">🚚</div>
+                    <h3 class="service-card__title">Доставка</h3>
+                    <p class="service-card__desc">Доставка по городу и области собственным транспортом.<br>Бережная разгрузка манипулятором.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-card__icon">📐</div>
+                    <h3 class="service-card__title">Замер и проект</h3>
+                    <p class="service-card__desc">Бесплатный выезд замерщика.<br>Составление сметы и точный расчёт материалов.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-card__icon">🔨</div>
+                    <h3 class="service-card__title">Укладка</h3>
+                    <p class="service-card__desc">Профессиональный монтаж с подготовкой основания.<br>Гарантия на работы — 1 год.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-card__icon">🔧</div>
+                    <h3 class="service-card__title">Гарантия и сервис</h3>
+                    <p class="service-card__desc">Гарантия на продукцию до 1 года. Бесплатная замена при обнаружении дефекта.</p>
+                </div>
+            </div>
+
+            <!-- Прайс-лист на услуги -->
+            <div class="services__pricelist">
+                <h3 class="services__pricelist-title">Прайс-лист на услуги</h3>
+                <div class="pricelist" id="pricelistContainer">
+                    <div class="pricelist__row pricelist__row--header">
+                        <span>Услуга</span>
+                        <span>Цена</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== REVIEWS ===== -->
+    <section class="section reviews" id="reviews">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Что говорят клиенты</p>
+                <h2 class="section__title">Отзывы</h2>
+                <p class="section__desc">Нам доверяют сотни клиентов — вот что они говорят</p>
+            </div>
+
+            <div class="reviews__slider" id="reviewsSlider">
+                <div class="reviews__track" id="reviewsTrack">
+                    <!-- Отзывы загружаются из базы данных -->
+                </div>
+                <div class="reviews__controls">
+                    <button class="reviews__arrow reviews__arrow--prev" id="reviewPrev" aria-label="Предыдущий">‹</button>
+                    <button class="reviews__arrow reviews__arrow--next" id="reviewNext" aria-label="Следующий">›</button>
+                </div>
+            </div>
+
+            <!-- Форма отзыва -->
+            <div class="review-form" id="reviewForm">
+                <h3 class="review-form__title">Оставить отзыв</h3>
+                <p class="review-form__note">Ваш отзыв будет опубликован после проверки модератором</p>
+                <div class="review-form__fields">
+                    <div class="review-form__group">
+                        <input type="text" class="review-form__input" id="reviewName" placeholder="Ваше имя" maxlength="50" required>
+                    </div>
+                    <div class="review-form__group">
+                        <input type="text" class="review-form__input" id="reviewCity" placeholder="Город (необязательно)" maxlength="40">
+                    </div>
+                    <div class="review-form__group">
+                        <label class="review-form__label">Оценка</label>
+                        <div class="review-form__stars-input" id="starsInput">
+                            <span class="star-btn" data-value="1">★</span>
+                            <span class="star-btn" data-value="2">★</span>
+                            <span class="star-btn" data-value="3">★</span>
+                            <span class="star-btn" data-value="4">★</span>
+                            <span class="star-btn" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="review-form__group review-form__group--full">
+                        <textarea class="review-form__textarea" id="reviewText" placeholder="Расскажите о вашем опыте…" maxlength="500" required></textarea>
+                    </div>
+                    <div class="review-form__group review-form__group--full">
+                        <label class="review-form__label">Фото (необязательно, до 3 шт)</label>
+                        <div class="review-form__photos-upload" id="reviewPhotosUpload">
+                            <label class="review-form__photo-add" id="reviewPhotoAdd">
+                                <span>+ Фото</span>
+                                <input type="file" accept="image/*" id="reviewPhotoInput" multiple hidden>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="consent-check">
+                        <input type="checkbox" id="reviewConsent">
+                        <span>Нажимая кнопку, я соглашаюсь с <a href="privacy.html" target="_blank">политикой конфиденциальности</a></span>
+                    </label>
+                    <button class="btn btn--primary review-form__btn" id="submitReview">Отправить отзыв</button>
+                </div>
+                <div class="review-form__success hidden" id="reviewSuccess">
+                    <span class="review-form__success-icon">✓</span>
+                    <p>Спасибо! Ваш отзыв отправлен на модерацию.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section faq" id="faq">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Ответы на вопросы</p>
+                <h2 class="section__title">Частые вопросы</h2>
+            </div>
+            <div class="faq__list">
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Какой срок службы вашей плитки?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Наша плитка рассчитана на срок службы от 25 лет и более при правильной укладке и эксплуатации. Мы используем высокомарочный бетон (М300+) и качественные красители, устойчивые к выгоранию.</p>
+                    </div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Какая минимальная партия заказа?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Минимальный заказ — от 10 м² для брусчатки и от 20 штук для бордюров. Для нестандартных заказов минимальная партия обсуждается индивидуально.</p>
+                    </div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Сколько стоит доставка?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Доставка по городу — бесплатно при заказе от 50 м². За пределы города стоимость рассчитывается индивидуально, в среднем от 50 ₽/км. Разгрузка манипулятором включена.</p>
+                    </div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Можно ли заказать плитку нестандартного цвета?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Да, мы изготавливаем плитку в любом цвете по каталогу RAL. Срок изготовления нестандартных цветов — от 5 рабочих дней, минимальная партия — от 30 м².</p>
+                    </div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Предоставляете ли вы гарантию на укладку?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Да, гарантия на работы по укладке составляет 3 года. На саму продукцию — до 25 лет. В случае обнаружения производственного брака замена производится бесплатно.</p>
+                    </div>
+                </div>
+                <div class="faq__item">
+                    <button class="faq__question">
+                        <span>Как правильно ухаживать за плиткой?</span>
+                        <span class="faq__icon">+</span>
+                    </button>
+                    <div class="faq__answer">
+                        <p>Плитка не требует особого ухода. Рекомендуем периодически промывать водой, не использовать агрессивную химию и своевременно удалять сорняки из швов. Зимой для уборки льда не используйте металлические скребки.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACTS ===== -->
+    <section class="section contacts" id="contacts">
+        <div class="container">
+            <div class="section__header">
+                <p class="section__tag">Свяжитесь с нами</p>
+                <h2 class="section__title">Контакты</h2>
+            </div>
+            <div class="contacts__inner">
+                <div class="contacts__info">
+                    <div class="contacts__item">
+                        <span class="contacts__icon">📍</span>
+                        <div>
+                            <p class="contacts__label">Адрес</p>
+                            <p class="contacts__value">Академическая улица, 3, деревня Долгое Лёдово, г. Щёлково, Московская область</p>
+                        </div>
+                    </div>
+                    <div class="contacts__item">
+                        <span class="contacts__icon">📞</span>
+                        <div>
+                            <p class="contacts__label">Телефон</p>
+                            <p class="contacts__value"><a href="tel:+79197220822">+7 (919) 722-08-22</a></p>
+                        </div>
+                    </div>
+                    <div class="contacts__item">
+                        <span class="contacts__icon"><img src="telegram.svg" alt="Telegram" class="contacts__icon-img"></span>
+                        <div>
+                            <p class="contacts__label">Telegram</p>
+                            <p class="contacts__value"><a href="https://t.me/whitehorsemanager" target="_blank" rel="noopener">@whitehorsemanager</a></p>
+                        </div>
+                    </div>
+                    <div class="contacts__item">
+                        <span class="contacts__icon">🕐</span>
+                        <div>
+                            <p class="contacts__label">Режим работы</p>
+                            <p class="contacts__value">Пн–Вс: 9:00–21:00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contacts__map" id="map">
+                    <iframe 
+                        src="https://yandex.ru/map-widget/v1/?ll=37.973215%2C55.858286&z=15&pt=37.973215%2C55.858286%2Cpm2rdm"
+                        width="100%" 
+                        height="100%" 
+                        style="border:0; border-radius: 16px;" 
+                        allowfullscreen 
+                        loading="lazy"
+                        title="Карта">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__col footer__col--brand">
+                    <a href="#" class="logo logo--footer">
+                        <img src="logo.svg" alt="White Horse Stone" class="logo__img">
+                        <span class="logo__text">White Horse Stone</span>
+                    </a>
+                    <p class="footer__about">Производство тротуарной плитки и бордюров. Качество, проверенное временем.</p>
+                </div>
+                <div class="footer__col">
+                    <h4 class="footer__heading">Навигация</h4>
+                    <a href="#hero" class="footer__link">Главная</a>
+                    <a href="#popular" class="footer__link">Популярные товары</a>
+                    <a href="#catalog" class="footer__link">Каталог</a>
+                    <a href="#calculator" class="footer__link">Расчёт стоимости</a>
+                </div>
+                <div class="footer__col">
+                    <h4 class="footer__heading">Компания</h4>
+                    <a href="#services" class="footer__link">Услуги</a>
+                    <a href="#reviews" class="footer__link">Отзывы</a>
+                    <a href="#faq" class="footer__link">FAQ</a>
+                    <a href="#contacts" class="footer__link">Контакты</a>
+                </div>
+                <div class="footer__col">
+                    <h4 class="footer__heading">Контакты</h4>
+                    <a href="https://t.me/whitehorsemanager" class="footer__link">@whitehorsemanager</a>
+                    <a href="tel:+79197220822" class="footer__link">+7 (919) 722-08-22</a>
+                    <p class="footer__link">Пн–Пт: 9:00–21:00</p>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 White Horse Stone. Все права защищены. <a href="privacy.html" target="_blank" class="footer__privacy">Политика конфиденциальности</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== PRODUCT MODAL ===== -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <button class="modal__close" id="modalClose" aria-label="Закрыть">&times;</button>
+            <div class="modal__carousel" id="modalCarousel">
+                <div class="modal__carousel-track" id="modalCarouselTrack"></div>
+                <button class="modal__carousel-arrow modal__carousel-arrow--prev" id="modalPrev">‹</button>
+                <button class="modal__carousel-arrow modal__carousel-arrow--next" id="modalNext">›</button>
+                <div class="modal__carousel-dots" id="modalDots"></div>
+            </div>
+            <div class="modal__body">
+                <span class="modal__type" id="modalType"></span>
+                <h2 class="modal__name" id="modalName"></h2>
+                <p class="modal__desc" id="modalDesc"></p>
+                <div class="modal__details">
+                    <div class="modal__detail">
+                        <span class="modal__detail-label">Цвет</span>
+                        <div class="modal__variations" id="modalColorPicker">
+                        </div>
+                    </div>
+                    <div class="modal__detail">
+                        <span class="modal__detail-label">Размер</span>
+                        <div class="modal__size-picker" id="modalSizePicker">
+                        </div>
+                    </div>
+                    <div class="modal__detail">
+                        <span class="modal__detail-label">Цена</span>
+                        <span class="modal__detail-value modal__detail-value--price" id="modalPrice"></span>
+                    </div>
+                </div>
+                <div class="modal__actions">
+                    <a href="#calculator" class="btn btn--primary" onclick="closeModal()">Рассчитать стоимость</a>
+                    <button class="btn btn--outline" onclick="closeModal(); openContactChoice()">Связаться с нами</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Choice Popup -->
+    <div class="contact-choice-overlay" id="contactChoice" onclick="closeContactChoice()">
+        <div class="contact-choice" onclick="event.stopPropagation()">
+            <button class="contact-choice__close" onclick="closeContactChoice()">&times;</button>
+            <h3 class="contact-choice__title">Свяжитесь с нами</h3>
+            <p class="contact-choice__subtitle">Выберите удобный способ связи</p>
+            <div class="contact-choice__buttons">
+                <a href="tel:+79197220822" class="contact-choice__btn contact-choice__btn--phone">
+                    <span class="contact-choice__btn-icon">📞</span>
+                    <span class="contact-choice__btn-label">Позвонить</span>
+                    <span class="contact-choice__btn-info">+7 (919) 722-08-22</span>
+                </a>
+                <a href="https://t.me/whitehorsemanager" target="_blank" rel="noopener" class="contact-choice__btn contact-choice__btn--tg">
+                    <span class="contact-choice__btn-icon"><img src="telegram.svg" alt="" style="width:24px;height:24px;"></span>
+                    <span class="contact-choice__btn-label">Telegram</span>
+                    <span class="contact-choice__btn-info">@whitehorsemanager</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Lightbox -->
+    <div class="photo-lightbox" id="photoLightbox" onclick="closePhotoLightbox()">
+        <button class="photo-lightbox__close" onclick="closePhotoLightbox()">&times;</button>
+        <img class="photo-lightbox__img" id="lightboxImg" alt="">
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

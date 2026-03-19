@@ -1,0 +1,16 @@
+{
+  "name": "whitehorse-stone",
+  "version": "1.0.0",
+  "description": "White Horse Stone — сайт тротуарной плитки и бордюров",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo Build complete — no compilation needed for this project. Run: npm start"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^4.21.0",
+    "mysql2": "^3.20.0"
+  }
+}

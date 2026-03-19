@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — White Horse Stone</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f8f7f4; --white: #fff; --text: #1a1a1a; --text-sec: #6b6b6b;
+            --text-light: #999; --border: #e5e3de; --accent: #2c2c2c;
+            --warm: #c4a882; --green: #43a047; --red: #e53935; --blue: #1976d2;
+            --radius: 12px; --font: 'Inter', sans-serif;
+        }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        /* Sidebar */
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px; background: var(--accent); color: rgba(255,255,255,.7);
+            padding: 24px 0; flex-shrink: 0; position: fixed; top: 0; bottom: 0;
+            overflow-y: auto; z-index: 100;
+        }
+        .sidebar__logo { padding: 0 24px 32px; font-size: 1.1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .sidebar__logo span { color: var(--warm); font-size: 1.3rem; }
+        .sidebar__nav { display: flex; flex-direction: column; }
+        .sidebar__link {
+            padding: 14px 24px; font-size: 0.9rem; cursor: pointer; transition: .2s;
+            border: none; background: none; color: rgba(255,255,255,.6); text-align: left;
+            font-family: var(--font); display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar__link:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .sidebar__link.active { background: rgba(255,255,255,.12); color: #fff; font-weight: 600; border-right: 3px solid var(--warm); }
+        .sidebar__link-icon { font-size: 1.1rem; }
+        .sidebar__back { margin-top: auto; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,.1); }
+        .sidebar__back a { color: rgba(255,255,255,.5); font-size: 0.85rem; text-decoration: none; }
+        .sidebar__back a:hover { color: #fff; }
+
+        .main { margin-left: 260px; flex: 1; padding: 32px 40px; }
+        .page-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-sec); font-size: 0.9rem; margin-bottom: 32px; }
+
+        /* Common */
+        .hidden { display: none !important; }
+        .section-panel { display: none; }
+        .section-panel.active { display: block; }
+
+        .card {
+            background: var(--white); border-radius: var(--radius); padding: 24px;
+            margin-bottom: 16px; border: 1px solid var(--border); transition: .2s;
+        }
+        .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+        }
+        .badge--paving { background: #fff3e0; color: #e65100; }
+        .badge--border { background: #e8eaf6; color: #283593; }
+        .badge--new { background: #e8f5e9; color: var(--green); }
+
+        .btn {
+            padding: 10px 22px; border: none; border-radius: 8px; font-family: var(--font);
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: .2s;
+        }
+        .btn--primary { background: var(--accent); color: #fff; }
+        .btn--primary:hover { background: #444; }
+        .btn--green { background: var(--green); color: #fff; }
+        .btn--green:hover { opacity: .85; }
+        .btn--red { background: var(--red); color: #fff; }
+        .btn--red:hover { opacity: .85; }
+        .btn--outline { background: transparent; border: 1px solid var(--border); color: var(--text-sec); }
+        .btn--outline:hover { border-color: var(--text); color: var(--text); }
+        .btn--sm { padding: 6px 14px; font-size: 0.8rem; }
+
+        .empty { text-align: center; padding: 60px; color: var(--text-light); font-size: 0.92rem; }
+
+        /* Stats row */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+        .stat-card__number { font-size: 1.8rem; font-weight: 800; }
+        .stat-card__label { font-size: 0.82rem; color: var(--text-sec); margin-top: 2px; }
+
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .form-grid--full { grid-column: span 2; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .form-input, .form-select, .form-textarea {
+            padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px;
+            font-family: var(--font); font-size: 0.88rem; background: var(--bg);
+            color: var(--text); transition: .2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+
+        /* Product form modal */
+        .modal-bg {
+            position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.45);
+            backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 24px;
+        }
+        .modal-bg.active { display: flex; }
+        .modal-panel {
+            background: var(--white); border-radius: var(--radius); max-width: 600px;
+            width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; position: relative;
+        }
+        .modal-panel__close {
+            position: absolute; top: 12px; right: 12px; width: 36px; height: 36px;
+            border: none; background: var(--bg); border-radius: 50%; font-size: 1.2rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-panel__title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
+
+        /* Photo preview */
+        /* Color picker */
+        .color-picker-admin {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+        }
+        .color-pick {
+            width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border);
+            cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s;
+            position: relative;
+        }
+        .color-pick:hover { transform: scale(1.15); }
+        .color-pick.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent);
+        }
+        .color-pick.selected::after {
+            content: '✓'; position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,.5);
+        }
+        .color-picker-hint {
+            font-size: 0.82rem; color: var(--text-sec); margin-top: 6px;
+        }
+
+        /* Variations table */
+        #variationsTable {
+            border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+        }
+        .var-header {
+            display: grid; grid-template-columns: 1fr 1fr 100px 36px; gap: 0;
+            background: var(--bg); padding: 8px 12px; font-size: 0.8rem;
+            font-weight: 600; color: var(--text-sec); border-bottom: 1px solid var(--border);
+        }
+        .var-row {
+            display: grid; grid-template-columns: 1fr 1fr 100px 36px; gap: 0;
+            padding: 6px 12px; border-bottom: 1px solid var(--border); align-items: center;
+        }
+        .var-row:last-child { border-bottom: none; }
+        .var-row select, .var-row input {
+            font-size: 0.85rem; padding: 6px 8px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--white); width: 100%;
+        }
+        .var-row select { padding-right: 20px; }
+        .var-del {
+            width: 28px; height: 28px; border: none; background: none; color: #e74c3c;
+            font-size: 1.1rem; cursor: pointer; border-radius: 6px; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .var-del:hover { background: #fde8e8; }
+
+        .photo-preview {
+            width: 100%; height: 120px; border-radius: 8px; background: var(--bg);
+            border: 2px dashed var(--border); display: flex; align-items: center;
+            justify-content: center; color: var(--text-light); font-size: 0.85rem;
+            margin-top: 4px; overflow: hidden; position: relative; cursor: pointer;
+        }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+        /* Color photo rows */
+        .color-photo-row {
+            display: flex; gap: 10px; align-items: center; margin-bottom: 8px;
+            padding: 8px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border);
+        }
+        .color-photo-row select { flex: 0 0 130px; font-size: 0.85rem; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; }
+        .color-photo-row .cp-thumb {
+            width: 60px; height: 40px; border-radius: 6px; overflow: hidden; background: var(--border);
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-light);
+        }
+        .color-photo-row .cp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .color-photo-row .cp-file-btn {
+            font-size: 0.8rem; padding: 4px 10px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--white); cursor: pointer; white-space: nowrap;
+        }
+        .color-photo-row .cp-file-btn:hover { border-color: var(--accent); }
+        .color-photo-row .cp-file { display: none; }
+
+        /* Product badge styles in admin */
+        .badge--hit { background: #fff3e0; color: #ef6c00; }
+        .badge--new { background: #e8f5e9; color: var(--green); }
+        .badge--sale { background: #fce4ec; color: #c62828; }
+        .badge--promo { background: #e3f2fd; color: #1565c0; }
+
+        /* Calc/review items */
+        .item-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .item-row__info { flex: 1; }
+        .item-row__title { font-weight: 600; font-size: 0.95rem; }
+        .item-row__meta { font-size: 0.82rem; color: var(--text-sec); margin-top: 2px; }
+        .item-row__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .review-stars { color: #f5a623; letter-spacing: 1px; font-size: 0.95rem; margin-bottom: 6px; }
+        .review-text { font-size: 0.88rem; color: var(--text-sec); line-height: 1.6; margin-bottom: 10px; }
+
+        /* Product table */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .product-admin-card { position: relative; }
+        .product-admin-card__img {
+            height: 140px; border-radius: 10px 10px 0 0; display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
+        }
+        .product-admin-card__img img { width: 100%; height: 100%; object-fit: cover; }
+        .product-admin-card__body { padding: 16px 0 0; }
+        .product-admin-card__name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+        .product-admin-card__info { font-size: 0.82rem; color: var(--text-sec); }
+        .product-admin-card__price { font-weight: 700; margin-top: 8px; }
+        .product-admin-card__actions { display: flex; gap: 8px; margin-top: 12px; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .card { animation: fadeIn .3s ease; }
+
+        @keyframes fadeRemove { to { opacity:0; transform:translateX(20px); height:0; padding:0; margin:0; overflow:hidden; } }
+        .card--removing { animation: fadeRemove .35s ease forwards; }
+
+        /* Mobile sidebar */
+        .sidebar-toggle {
+            display: none; position: fixed; top: 16px; left: 16px; z-index: 150;
+            width: 44px; height: 44px; border-radius: 10px; border: none;
+            background: var(--accent); color: #fff; font-size: 1.3rem; cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: .3s; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle { display: flex; align-items: center; justify-content: center; }
+            .main { margin-left: 0; padding: 80px 20px 32px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid--full { grid-column: span 1; }
+            .products-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Login screen */
+        .login-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-overlay.hidden { display: none; }
+        .login-card {
+            background: var(--white); border-radius: var(--radius); padding: 48px 40px;
+            max-width: 400px; width: 100%; border: 1px solid var(--border);
+            box-shadow: 0 8px 40px rgba(0,0,0,.08); text-align: center;
+        }
+        .login-card__logo { height: 48px; margin-bottom: 24px; }
+        .login-card__title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+        .login-card__subtitle { font-size: 0.88rem; color: var(--text-sec); margin-bottom: 28px; }
+        .login-card__input {
+            width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px;
+            font-family: var(--font); font-size: 0.95rem; background: var(--bg);
+            color: var(--text); text-align: center; margin-bottom: 16px; transition: .2s;
+        }
+        .login-card__input:focus { outline: none; border-color: var(--accent); background: #fff; }
+        .login-card__btn {
+            width: 100%; padding: 13px; border: none; border-radius: 8px;
+            background: var(--accent); color: #fff; font-family: var(--font);
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: .2s;
+        }
+        .login-card__btn:hover { background: #444; }
+        .login-card__error {
+            color: var(--red); font-size: 0.82rem; margin-top: 12px;
+            min-height: 20px;
+        }
+        .admin-content { transition: opacity .3s; }
+        .admin-content.locked { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+        <img src="logo.svg" alt="WHS" class="login-card__logo">
+        <h1 class="login-card__title">Админ-панель</h1>
+        <p class="login-card__subtitle">Введите пароль для доступа</p>
+        <input type="password" class="login-card__input" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
+        <button class="login-card__btn" id="loginBtn">Войти</button>
+        <p class="login-card__error" id="loginError"></p>
+    </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<div class="admin-layout admin-content locked" id="adminContent">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar__logo"><img src="logo.svg" alt="" style="height:24px;width:auto;"> WHS Admin</div>
+        <nav class="sidebar__nav">
+            <button class="sidebar__link active" data-section="products"><span class="sidebar__link-icon">📦</span> Товары</button>
+            <button class="sidebar__link" data-section="calculations"><span class="sidebar__link-icon">📐</span> Расчёты</button>
+            <button class="sidebar__link" data-section="reviews"><span class="sidebar__link-icon">💬</span> Отзывы</button>
+            <button class="sidebar__link" data-section="services"><span class="sidebar__link-icon">🔧</span> Прайс-лист</button>
+        </nav>
+        <div class="sidebar__back">
+            <a href="index.html">← Вернуться на сайт</a>
+            <br><a href="#" id="logoutBtn" style="color:#e53935;margin-top:8px;display:inline-block;">Выйти</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <!-- ===== PRODUCTS ===== -->
+        <div class="section-panel active" id="panel-products">
+            <h1 class="page-title">Управление товарами</h1>
+            <p class="page-subtitle">Добавляйте, редактируйте и удаляйте позиции каталога</p>
+
+            <div class="stats-row" id="productStats"></div>
+
+            <div style="margin-bottom: 24px;">
+                <button class="btn btn--primary" id="addProductBtn">+ Добавить товар</button>
+            </div>
+
+            <div class="products-grid" id="productsGrid"></div>
+            <div class="empty hidden" id="productsEmpty">Товаров пока нет. Добавьте первый!</div>
+        </div>
+
+        <!-- ===== CALCULATIONS ===== -->
+        <div class="section-panel" id="panel-calculations">
+            <h1 class="page-title">Предварительные расчёты</h1>
+            <p class="page-subtitle">Расчёты, отправленные посетителями сайта</p>
+
+            <div class="stats-row" id="calcStats"></div>
+
+            <div style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn--outline btn--sm calc-filter active" data-filter="all">Все</button>
+                <button class="btn btn--outline btn--sm calc-filter" data-filter="contact">С контактами</button>
+                <button class="btn btn--outline btn--sm calc-filter" data-filter="paving">Брусчатка</button>
+                <button class="btn btn--outline btn--sm calc-filter" data-filter="border">Бордюры</button>
+            </div>
+
+            <div id="calcList"></div>
+            <div class="empty hidden" id="calcEmpty">Расчётов пока нет</div>
+        </div>
+
+        <!-- ===== REVIEWS ===== -->
+        <div class="section-panel" id="panel-reviews">
+            <h1 class="page-title">Модерация отзывов</h1>
+            <p class="page-subtitle">Одобряйте или отклоняйте отзывы клиентов</p>
+
+            <div class="stats-row" id="reviewStats"></div>
+
+            <div style="margin-bottom: 16px; display: flex; gap: 8px;">
+                <button class="btn btn--outline btn--sm review-tab-btn active" data-view="pending">На модерации</button>
+                <button class="btn btn--outline btn--sm review-tab-btn" data-view="approved">Одобренные</button>
+            </div>
+
+            <div id="pendingList"></div>
+            <div id="approvedList" class="hidden"></div>
+        </div>
+
+        <!-- ===== SERVICES / PRICE LIST ===== -->
+        <div class="section-panel" id="panel-services">
+            <h1 class="page-title">Прайс-лист на услуги</h1>
+            <p class="page-subtitle">Управляйте списком услуг и ценами, отображаемыми на сайте</p>
+
+            <div class="stats-row" id="serviceStats"></div>
+
+            <div style="margin-bottom: 24px;">
+                <button class="btn btn--primary" id="addServiceBtn">+ Добавить услугу</button>
+            </div>
+
+            <div id="servicesList"></div>
+            <div class="empty hidden" id="servicesEmpty">Услуг пока нет. Добавьте первую!</div>
+        </div>
+    </main>
+</div>
+
+<!-- Product Form Modal -->
+<div class="modal-bg" id="productModal">
+    <div class="modal-panel">
+        <button class="modal-panel__close" id="productModalClose">&times;</button>
+        <h3 class="modal-panel__title" id="productModalTitle">Добавить товар</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="pName" placeholder="Например: Классическая" maxlength="60">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Категория</label>
+                <select class="form-select" id="pType">
+                    <option value="Брусчатка">Брусчатка</option>
+                    <option value="Бордюр">Бордюр</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Размеры (по умолч.)</label>
+                <input type="text" class="form-input" id="pSpecs" placeholder="200×100×60 мм" maxlength="40">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Цена (базовая)</label>
+                <input type="text" class="form-input" id="pPrice" placeholder="от 850" maxlength="30">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Единица цены</label>
+                <select class="form-select" id="pPriceUnit">
+                    <option value="₽/м²">₽/м²</option>
+                    <option value="₽/шт">₽/шт</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Плашка</label>
+                <select class="form-select" id="pBadge">
+                    <option value="">Нет</option>
+                    <option value="Новинка">Новинка</option>
+                    <option value="Хит">Хит</option>
+                    <option value="Акция">Акция</option>
+                    <option value="Распродажа">Распродажа</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Популярный товар</label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:4px;">
+                    <input type="checkbox" id="pPopular" style="width:18px;height:18px;accent-color:var(--warm);cursor:pointer;">
+                    <span style="font-size:0.88rem;color:var(--text-sec);">Показывать в «Популярные»</span>
+                </label>
+            </div>
+            <div class="form-group form-grid--full">
+                <label class="form-label">Доступные цвета</label>
+                <input type="hidden" id="pColors">
+                <div class="color-picker-admin" id="colorPickerAdmin">
+                    <button type="button" class="color-pick" data-color="серый" style="background:#9e9e9e" title="Серый"></button>
+                    <button type="button" class="color-pick" data-color="красный" style="background:#c0392b" title="Красный"></button>
+                    <button type="button" class="color-pick" data-color="коричневый" style="background:#795548" title="Коричневый"></button>
+                    <button type="button" class="color-pick" data-color="чёрный" style="background:#2c2c2c" title="Чёрный"></button>
+                    <button type="button" class="color-pick" data-color="терракот" style="background:#c4631e" title="Терракот"></button>
+                    <button type="button" class="color-pick" data-color="песочный" style="background:#d4b896" title="Песочный"></button>
+                    <button type="button" class="color-pick" data-color="графит" style="background:#555555" title="Графит"></button>
+                    <button type="button" class="color-pick" data-color="белый" style="background:#f0f0f0" title="Белый"></button>
+                    <button type="button" class="color-pick" data-color="охра" style="background:#cc7722" title="Охра"></button>
+                    <button type="button" class="color-pick" data-color="микс" style="background:linear-gradient(135deg,#c4a882,#9e9e9e,#795548)" title="Микс"></button>
+                    <button type="button" class="color-pick" data-color="бежевый" style="background:#d4c4a8" title="Бежевый"></button>
+                    <button type="button" class="color-pick" data-color="антрацит" style="background:#3a3a3a" title="Антрацит"></button>
+                    <button type="button" class="color-pick" data-color="зелёный" style="background:#5a8a5a" title="Зелёный"></button>
+                </div>
+                <p class="color-picker-hint">Выбрано: <span id="colorPickerSelected">нет</span></p>
+            </div>
+
+            <!-- ВАРИАЦИИ: цвет + размер + цена -->
+            <div class="form-group form-grid--full">
+                <label class="form-label">Вариации (цвет × размер → цена)</label>
+                <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:8px;">Каждая строка — отдельная комбинация. Если вариаций нет, будет использоваться базовая цена.</p>
+                <div id="variationsTable">
+                    <div class="var-header">
+                        <span>Цвет</span><span>Размер</span><span>Цена (₽)</span><span></span>
+                    </div>
+                    <div id="variationsRows"></div>
+                </div>
+                <button type="button" class="btn btn--outline btn--sm" id="addVariation" style="margin-top:8px;">+ Добавить вариацию</button>
+            </div>
+            <div class="form-group form-grid--full">
+                <label class="form-label">Описание</label>
+                <textarea class="form-textarea" id="pDesc" placeholder="Подробное описание товара..." maxlength="500"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Цвет фона карточки (HEX)</label>
+                <input type="color" class="form-input" id="pBg" value="#c4a882" style="height:42px;padding:4px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Фото товара (основное)</label>
+                <div class="photo-preview" id="photoPreview">
+                    <span id="photoPlaceholder">Нажмите для загрузки</span>
+                    <input type="file" accept="image/*" id="pPhoto">
+                </div>
+            </div>
+            <!-- Фото по цветам -->
+            <div class="form-group form-grid--full">
+                <label class="form-label">Фото по цветам</label>
+                <p style="font-size:0.8rem;color:var(--text-sec);margin-bottom:8px;">Привяжите фото к конкретному цвету. При выборе цвета покупателем будет показано соответствующее фото.</p>
+                <div id="colorPhotosContainer"></div>
+                <button type="button" class="btn btn--outline btn--sm" id="addColorPhoto" style="margin-top:8px;">+ Добавить фото для цвета</button>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+            <button class="btn btn--primary" id="saveProduct" style="flex:1">Сохранить</button>
+            <button class="btn btn--outline" id="cancelProduct">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== AUTH =====
+// Токен может прийти из URL (?token=...) при первом входе, или из sessionStorage
+const urlToken = new URLSearchParams(window.location.search).get('token');
+if (urlToken) {
+    sessionStorage.setItem('adminToken', urlToken);
+    // Убираем токен из URL (не светить в браузере)
+    history.replaceState(null, '', '/admin');
+}
+let authToken = sessionStorage.getItem('adminToken') || '';
+
+async function checkAuth() {
+    if (!authToken) return showLogin();
+    try {
+        const res = await fetch('/api/auth/check', { headers: { 'Authorization': 'Bearer ' + authToken } });
+        if (res.ok) return unlockAdmin();
+    } catch(e) {}
+    authToken = '';
+    sessionStorage.removeItem('adminToken');
+    showLogin();
+}
+
+function showLogin() {
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('adminContent').classList.add('locked');
+}
+
+function unlockAdmin() {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminContent').classList.remove('locked');
+}
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+    const pw = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+    if (!pw) { errEl.textContent = 'Введите пароль'; return; }
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+            authToken = data.token;
+            sessionStorage.setItem('adminToken', authToken);
+            unlockAdmin();
+        } else {
+            errEl.textContent = data.error || 'Неверный пароль';
+        }
+    } catch(e) {
+        errEl.textContent = 'Ошибка подключения';
+    }
+}
+
+checkAuth();
+
+// ===== HELPERS =====
+function esc(text) {
+    const d = document.createElement('div');
+    d.textContent = text || '';
+    return d.innerHTML;
+}
+
+function renderStars(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+
+async function api(url, options = {}) {
+    options.headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken, ...options.headers };
+    if (options.body && typeof options.body === 'object') options.body = JSON.stringify(options.body);
+    const res = await fetch(url, options);
+    if (res.status === 401) { authToken = ''; sessionStorage.removeItem('adminToken'); showLogin(); throw new Error('Unauthorized'); }
+    return res.json();
+}
+
+// ===== SIDEBAR NAV =====
+const sidebarLinks = document.querySelectorAll('.sidebar__link');
+const panels = document.querySelectorAll('.section-panel');
+
+sidebarLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById('panel-' + link.dataset.section).classList.add('active');
+        document.getElementById('sidebar').classList.remove('open');
+    });
+});
+
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+});
+
+// =========================================================
+//                     PRODUCTS
+// =========================================================
+const productsGrid = document.getElementById('productsGrid');
+const productsEmpty = document.getElementById('productsEmpty');
+const productModal = document.getElementById('productModal');
+const productModalTitle = document.getElementById('productModalTitle');
+let editingProductId = null;
+let currentPhotoData = null;
+
+document.getElementById('addProductBtn').addEventListener('click', () => {
+    editingProductId = null;
+    productModalTitle.textContent = 'Добавить товар';
+    clearProductForm();
+    productModal.classList.add('active');
+});
+
+document.getElementById('productModalClose').addEventListener('click', () => productModal.classList.remove('active'));
+document.getElementById('cancelProduct').addEventListener('click', () => productModal.classList.remove('active'));
+productModal.addEventListener('click', (e) => { if (e.target === productModal) productModal.classList.remove('active'); });
+
+// Photo upload
+const pPhotoInput = document.getElementById('pPhoto');
+const photoPreview = document.getElementById('photoPreview');
+const photoPlaceholder = document.getElementById('photoPlaceholder');
+
+pPhotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        currentPhotoData = ev.target.result;
+        photoPlaceholder.style.display = 'none';
+        let img = photoPreview.querySelector('img');
+        if (!img) {
+            img = document.createElement('img');
+            photoPreview.appendChild(img);
+        }
+        img.src = currentPhotoData;
+    };
+    reader.readAsDataURL(file);
+});
+
+// ===== COLOR PICKER ADMIN LOGIC =====
+const colorPickerAdmin = document.getElementById('colorPickerAdmin');
+const colorPickerSelected = document.getElementById('colorPickerSelected');
+const pColorsHidden = document.getElementById('pColors');
+
+function syncColorPicker() {
+    const selected = colorPickerAdmin.querySelectorAll('.color-pick.selected');
+    const names = Array.from(selected).map(b => b.dataset.color);
+    pColorsHidden.value = names.join(', ');
+    colorPickerSelected.textContent = names.length > 0 ? names.join(', ') : 'нет';
+}
+
+function setColorsFromString(str) {
+    const list = (str || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    colorPickerAdmin.querySelectorAll('.color-pick').forEach(btn => {
+        btn.classList.toggle('selected', list.includes(btn.dataset.color.toLowerCase()));
+    });
+    syncColorPicker();
+}
+
+colorPickerAdmin.addEventListener('click', (e) => {
+    const btn = e.target.closest('.color-pick');
+    if (!btn) return;
+    btn.classList.toggle('selected');
+    syncColorPicker();
+});
+
+// ===== VARIATIONS EDITOR =====
+const variationsRows = document.getElementById('variationsRows');
+const colorOptions = ['серый','красный','коричневый','чёрный','терракот','песочный','графит','белый','охра','микс','бежевый','антрацит','зелёный'];
+
+function addVariationRow(color, size, price) {
+    const row = document.createElement('div');
+    row.className = 'var-row';
+    row.innerHTML = `
+        <select class="var-color">
+            ${colorOptions.map(c => `<option value="${c}"${c === color ? ' selected' : ''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+        </select>
+        <input type="text" class="var-size" placeholder="200×100×60 мм" value="${esc(size || '')}" maxlength="40">
+        <input type="number" class="var-price" placeholder="850" value="${esc(price || '')}" min="0">
+        <button type="button" class="var-del" title="Удалить">×</button>
+    `;
+    row.querySelector('.var-del').addEventListener('click', () => row.remove());
+    variationsRows.appendChild(row);
+}
+
+document.getElementById('addVariation').addEventListener('click', () => addVariationRow('серый', '', ''));
+
+// ===== COLOR PHOTOS MANAGEMENT =====
+let colorPhotosData = []; // [{color: 'серый', url: 'data:...'}]
+
+function renderColorPhotos() {
+    const container = document.getElementById('colorPhotosContainer');
+    container.innerHTML = '';
+    colorPhotosData.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'color-photo-row';
+        row.innerHTML = `
+            <select class="cp-color">
+                ${colorOptions.map(c => `<option value="${c}"${c === item.color ? ' selected' : ''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+            </select>
+            <div class="cp-thumb">${item.url ? '<img src="'+esc(item.url)+'">' : 'Нет'}</div>
+            <label class="cp-file-btn">Выбрать фото<input type="file" accept="image/*" class="cp-file"></label>
+            <button type="button" class="var-del" title="Удалить">×</button>
+        `;
+        row.querySelector('.cp-color').addEventListener('change', (e) => {
+            colorPhotosData[idx].color = e.target.value;
+        });
+        row.querySelector('.cp-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                colorPhotosData[idx].url = ev.target.result;
+                row.querySelector('.cp-thumb').innerHTML = '<img src="'+ev.target.result+'">';
+            };
+            reader.readAsDataURL(file);
+        });
+        row.querySelector('.var-del').addEventListener('click', () => {
+            colorPhotosData.splice(idx, 1);
+            renderColorPhotos();
+        });
+        container.appendChild(row);
+    });
+}
+
+document.getElementById('addColorPhoto').addEventListener('click', () => {
+    colorPhotosData.push({ color: 'серый', url: '' });
+    renderColorPhotos();
+});
+
+function getVariationsData() {
+    const rows = variationsRows.querySelectorAll('.var-row');
+    return Array.from(rows).map(r => ({
+        color: r.querySelector('.var-color').value,
+        size: r.querySelector('.var-size').value.trim(),
+        price: r.querySelector('.var-price').value.trim()
+    })).filter(v => v.price);
+}
+
+function setVariationsFromArray(arr) {
+    variationsRows.innerHTML = '';
+    (arr || []).forEach(v => addVariationRow(v.color, v.size, v.price));
+}
+
+function clearProductForm() {
+    document.getElementById('pName').value = '';
+    document.getElementById('pType').value = 'Брусчатка';
+    document.getElementById('pSpecs').value = '';
+    document.getElementById('pPrice').value = '';
+    document.getElementById('pPriceUnit').value = '₽/м²';
+    document.getElementById('pBadge').value = '';
+    pColorsHidden.value = '';
+    setColorsFromString('');
+    setVariationsFromArray([]);
+    document.getElementById('pDesc').value = '';
+    document.getElementById('pBg').value = '#c4a882';
+    currentPhotoData = null;
+    photoPlaceholder.style.display = '';
+    const img = photoPreview.querySelector('img');
+    if (img) img.remove();
+    colorPhotosData = [];
+    renderColorPhotos();
+    document.getElementById('pPopular').checked = false;
+}
+
+document.getElementById('saveProduct').addEventListener('click', async () => {
+    const name = document.getElementById('pName').value.trim();
+    const type = document.getElementById('pType').value;
+    const specs = document.getElementById('pSpecs').value.trim();
+    const price = document.getElementById('pPrice').value.trim();
+    const price_unit = document.getElementById('pPriceUnit').value;
+    const badge = document.getElementById('pBadge').value;
+    const colors = document.getElementById('pColors').value.trim();
+    const description = document.getElementById('pDesc').value.trim();
+    const bg = document.getElementById('pBg').value;
+
+    if (!name || !price) {
+        alert('Заполните название и базовую цену');
+        return;
+    }
+
+    const variations = JSON.stringify(getVariationsData());
+    const photos = JSON.stringify(colorPhotosData);
+    const is_popular = document.getElementById('pPopular').checked;
+    const data = { name, type, specs, price, colors, description, bg, photo: currentPhotoData || null, variations, badge, photos, price_unit, is_popular };
+
+    if (editingProductId) {
+        await api('/api/products/' + editingProductId, { method: 'PUT', body: data });
+    } else {
+        await api('/api/products', { method: 'POST', body: data });
+    }
+
+    productModal.classList.remove('active');
+    renderProducts();
+});
+
+async function renderProducts() {
+    const products = await api('/api/products');
+
+    document.getElementById('productStats').innerHTML = `
+        <div class="stat-card"><div class="stat-card__number">${products.length}</div><div class="stat-card__label">Всего товаров</div></div>
+        <div class="stat-card"><div class="stat-card__number">${products.filter(p=>p.type==='Брусчатка').length}</div><div class="stat-card__label">Брусчатка</div></div>
+        <div class="stat-card"><div class="stat-card__number">${products.filter(p=>p.type==='Бордюр').length}</div><div class="stat-card__label">Бордюры</div></div>
+        <div class="stat-card"><div class="stat-card__number">${products.filter(p=>p.is_popular).length}</div><div class="stat-card__label">Популярные</div></div>
+    `;
+
+    productsEmpty.classList.toggle('hidden', products.length > 0);
+
+    productsGrid.innerHTML = products.map(p => {
+        const badgeClass = {'Новинка':'badge--new','Хит':'badge--hit','Акция':'badge--sale','Распродажа':'badge--promo'}[p.badge] || '';
+        return `
+        <div class="card product-admin-card" data-id="${p.id}">
+            <div class="product-admin-card__img" style="background:${p.photo ? 'none' : p.bg || '#c4a882'}; border-radius: 10px;">
+                ${p.photo ? '<img src="'+esc(p.photo)+'" alt="">' : ''}
+            </div>
+            <div class="product-admin-card__body">
+                <span class="badge ${p.type === 'Брусчатка' ? 'badge--paving' : 'badge--border'}">${esc(p.type)}</span>
+                ${p.badge ? '<span class="badge '+badgeClass+'" style="margin-left:4px;">'+esc(p.badge)+'</span>' : ''}
+                ${p.is_popular ? '<span class="badge" style="margin-left:4px;background:#fff3e0;color:#e65100;">★ Популярный</span>' : ''}
+                <h3 class="product-admin-card__name">${esc(p.name)}</h3>
+                <p class="product-admin-card__info">${esc(p.specs)} · ${esc(p.colors)}</p>
+                <p class="product-admin-card__price">${esc(p.price)} ${esc(p.price_unit || '₽/м²')}${(() => { try { const v = JSON.parse(p.variations||'[]'); return v.length ? ' · '+v.length+' вар.' : ''; } catch(e) { return ''; } })()}</p>
+                <div class="product-admin-card__actions">
+                    <button class="btn btn--outline btn--sm" onclick="editProduct(${p.id})">Изменить</button>
+                    <button class="btn btn--red btn--sm" onclick="deleteProduct(${p.id})">Удалить</button>
+                </div>
+            </div>
+        </div>
+    `}).join('');
+}
+
+window.editProduct = async function(id) {
+    const p = await api('/api/products/' + id);
+    if (!p || p.error) return;
+
+    editingProductId = id;
+    productModalTitle.textContent = 'Редактировать товар';
+    document.getElementById('pName').value = p.name;
+    document.getElementById('pType').value = p.type;
+    document.getElementById('pSpecs').value = p.specs || '';
+    document.getElementById('pPrice').value = p.price;
+    document.getElementById('pPriceUnit').value = p.price_unit || '₽/м²';
+    document.getElementById('pBadge').value = p.badge || '';
+    document.getElementById('pPopular').checked = !!p.is_popular;
+    setColorsFromString(p.colors || '');
+    try { setVariationsFromArray(JSON.parse(p.variations || '[]')); } catch(e) { setVariationsFromArray([]); }
+    document.getElementById('pDesc').value = p.description || '';
+    document.getElementById('pBg').value = p.bg || '#c4a882';
+    currentPhotoData = p.photo || null;
+
+    // Load color photos
+    try { colorPhotosData = JSON.parse(p.photos || '[]'); } catch(e) { colorPhotosData = []; }
+    renderColorPhotos();
+
+    if (p.photo) {
+        photoPlaceholder.style.display = 'none';
+        let img = photoPreview.querySelector('img');
+        if (!img) { img = document.createElement('img'); photoPreview.appendChild(img); }
+        img.src = p.photo;
+    } else {
+        photoPlaceholder.style.display = '';
+        const img = photoPreview.querySelector('img');
+        if (img) img.remove();
+    }
+
+    productModal.classList.add('active');
+};
+
+window.deleteProduct = function(id) {
+    if (!confirm('Удалить этот товар?')) return;
+    const el = document.querySelector(`.product-admin-card[data-id="${id}"]`);
+    if (el) {
+        el.closest('.card').classList.add('card--removing');
+        setTimeout(async () => {
+            await api('/api/products/' + id, { method: 'DELETE' });
+            renderProducts();
+        }, 350);
+    }
+};
+
+// =========================================================
+//                   CALCULATIONS
+// =========================================================
+let calcFilter = 'all';
+
+document.querySelectorAll('.calc-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.calc-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        calcFilter = btn.dataset.filter;
+        renderCalculations();
+    });
+});
+
+async function renderCalculations() {
+    let calcs = await api('/api/calculations');
+    const total = calcs.length;
+    const withContact = calcs.filter(c => c.client_name || c.client_phone).length;
+
+    document.getElementById('calcStats').innerHTML = `
+        <div class="stat-card"><div class="stat-card__number">${total}</div><div class="stat-card__label">Всего расчётов</div></div>
+        <div class="stat-card"><div class="stat-card__number">${withContact}</div><div class="stat-card__label">С контактами</div></div>
+    `;
+
+    // Filter
+    if (calcFilter === 'contact') calcs = calcs.filter(c => c.client_name || c.client_phone);
+    else if (calcFilter === 'paving') calcs = calcs.filter(c => c.type === 'Брусчатка');
+    else if (calcFilter === 'border') calcs = calcs.filter(c => c.type === 'Бордюры');
+
+    document.getElementById('calcEmpty').classList.toggle('hidden', calcs.length > 0);
+
+    const calcList = document.getElementById('calcList');
+    calcList.innerHTML = calcs.map(c => `
+        <div class="card" data-id="${c.id}">
+            <div class="item-row">
+                <div class="item-row__info">
+                    <div class="item-row__title">
+                        <span class="badge ${c.type === 'Брусчатка' ? 'badge--paving' : 'badge--border'}">${esc(c.type)}</span>
+                        ${esc(c.product)}
+                    </div>
+                    <div class="item-row__meta">
+                        ${c.quantity} ${esc(c.unit)} · <strong>${esc(c.total)}</strong>
+                        · ${esc(c.date)} в ${esc(c.time)}
+                        ${c.client_name ? ' · 👤 ' + esc(c.client_name) : ''}
+                        ${c.client_phone ? ' · 📞 ' + esc(c.client_phone) : ''}
+                    </div>
+                </div>
+                <div class="item-row__actions">
+                    <button class="btn btn--outline btn--sm" onclick="deleteCalc(${c.id})">Удалить</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.deleteCalc = function(id) {
+    const el = document.querySelector(`.card[data-id="${id}"]`);
+    if (el) {
+        el.classList.add('card--removing');
+        setTimeout(async () => {
+            await api('/api/calculations/' + id, { method: 'DELETE' });
+            renderCalculations();
+        }, 350);
+    }
+};
+
+// =========================================================
+//                     REVIEWS
+// =========================================================
+const pendingList = document.getElementById('pendingList');
+const approvedList = document.getElementById('approvedList');
+
+document.querySelectorAll('.review-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.review-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        pendingList.classList.toggle('hidden', view !== 'pending');
+        approvedList.classList.toggle('hidden', view !== 'approved');
+    });
+});
+
+async function renderReviews() {
+    const pending = await api('/api/reviews?status=pending');
+    const approved = await api('/api/reviews?status=approved');
+
+    document.getElementById('reviewStats').innerHTML = `
+        <div class="stat-card"><div class="stat-card__number">${pending.length}</div><div class="stat-card__label">На модерации</div></div>
+        <div class="stat-card"><div class="stat-card__number">${approved.length}</div><div class="stat-card__label">Одобренных</div></div>
+    `;
+
+    if (!pending.length) {
+        pendingList.innerHTML = '<div class="empty">Нет отзывов на модерации</div>';
+    } else {
+        pendingList.innerHTML = pending.map(r => {
+            let photosHtml = '';
+            try {
+                const ph = JSON.parse(r.photos || '[]');
+                if (ph.length) photosHtml = '<div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;">'+ph.map(u=>'<img src="'+esc(u)+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">').join('')+'</div>';
+            } catch(e) {}
+            return `
+            <div class="card" data-id="${r.id}">
+                <div class="review-stars">${renderStars(r.rating)}</div>
+                <p class="review-text">${esc(r.text)}</p>
+                ${photosHtml}
+                <div class="item-row">
+                    <div class="item-row__info">
+                        <span class="item-row__title">${esc(r.name)}</span>
+                        <span class="item-row__meta">${r.city ? '📍 '+esc(r.city)+' · ' : ''}${esc(r.date)}</span>
+                    </div>
+                    <div class="item-row__actions">
+                        <button class="btn btn--green btn--sm" onclick="approveReview(${r.id})">Одобрить</button>
+                        <button class="btn btn--red btn--sm" onclick="rejectReview(${r.id})">Отклонить</button>
+                    </div>
+                </div>
+            </div>
+        `}).join('');
+    }
+
+    if (!approved.length) {
+        approvedList.innerHTML = '<div class="empty">Нет одобренных отзывов</div>';
+    } else {
+        approvedList.innerHTML = approved.map(r => {
+            let photosHtml = '';
+            try {
+                const ph = JSON.parse(r.photos || '[]');
+                if (ph.length) photosHtml = '<div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;">'+ph.map(u=>'<img src="'+esc(u)+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">').join('')+'</div>';
+            } catch(e) {}
+            return `
+            <div class="card" data-id="${r.id}">
+                <div class="review-stars">${renderStars(r.rating)}</div>
+                <p class="review-text">${esc(r.text)}</p>
+                ${photosHtml}
+                <div class="item-row">
+                    <div class="item-row__info">
+                        <span class="item-row__title">${esc(r.name)}</span>
+                        <span class="item-row__meta">${r.city ? '📍 '+esc(r.city)+' · ' : ''}${esc(r.date)}</span>
+                    </div>
+                    <div class="item-row__actions">
+                        <button class="btn btn--red btn--sm" onclick="removeApproved(${r.id})">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        `}).join('');
+    }
+}
+
+function animateRemove(id, cb) {
+    const el = document.querySelector(`.card[data-id="${id}"]`);
+    if (el) { el.classList.add('card--removing'); setTimeout(cb, 350); }
+    else cb();
+}
+
+window.approveReview = function(id) {
+    animateRemove(id, async () => {
+        await api('/api/reviews/' + id + '/approve', { method: 'PUT' });
+        renderReviews();
+    });
+};
+
+window.rejectReview = function(id) {
+    animateRemove(id, async () => {
+        await api('/api/reviews/' + id + '/reject', { method: 'PUT' });
+        renderReviews();
+    });
+};
+
+window.removeApproved = function(id) {
+    if (!confirm('Удалить этот отзыв?')) return;
+    animateRemove(id, async () => {
+        await api('/api/reviews/' + id, { method: 'DELETE' });
+        renderReviews();
+    });
+};
+
+// =========================================================
+//                     SERVICES / PRICE LIST
+// =========================================================
+document.getElementById('addServiceBtn').addEventListener('click', () => {
+    const name = prompt('Название услуги:');
+    if (!name) return;
+    const price = prompt('Цена (например: от 800 ₽/м²):');
+    if (!price) return;
+    const sort_order = parseInt(prompt('Порядок сортировки (число, 0 = первый):', '0')) || 0;
+
+    api('/api/services', { method: 'POST', body: { name, price, sort_order } })
+        .then(() => renderServices());
+});
+
+async function renderServices() {
+    const services = await api('/api/services');
+
+    document.getElementById('serviceStats').innerHTML = `
+        <div class="stat-card"><div class="stat-card__number">${services.length}</div><div class="stat-card__label">Всего услуг</div></div>
+    `;
+
+    document.getElementById('servicesEmpty').classList.toggle('hidden', services.length > 0);
+
+    const list = document.getElementById('servicesList');
+    list.innerHTML = services.map(s => `
+        <div class="card" data-id="${s.id}" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+                <div style="font-weight:600;font-size:0.95rem;">${esc(s.name)}</div>
+                <div style="color:var(--text-sec);font-size:0.85rem;margin-top:2px;">Порядок: ${s.sort_order || 0}</div>
+            </div>
+            <div style="font-weight:700;font-size:1rem;color:var(--warm);white-space:nowrap;">${esc(s.price)}</div>
+            <div style="display:flex;gap:6px;">
+                <button class="btn btn--outline btn--sm" onclick="editService(${s.id}, '${esc(s.name).replace(/'/g, "\\'")}', '${esc(s.price).replace(/'/g, "\\'")}', ${s.sort_order || 0})">Изменить</button>
+                <button class="btn btn--red btn--sm" onclick="deleteService(${s.id})">Удалить</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.editService = function(id, currentName, currentPrice, currentSort) {
+    const name = prompt('Название услуги:', currentName);
+    if (!name) return;
+    const price = prompt('Цена:', currentPrice);
+    if (!price) return;
+    const sort_order = parseInt(prompt('Порядок сортировки:', currentSort)) || 0;
+
+    api('/api/services/' + id, { method: 'PUT', body: { name, price, sort_order } })
+        .then(() => renderServices());
+};
+
+window.deleteService = function(id) {
+    if (!confirm('Удалить эту услугу?')) return;
+    api('/api/services/' + id, { method: 'DELETE' })
+        .then(() => renderServices());
+};
+
+// ===== INIT =====
+renderProducts();
+renderCalculations();
+renderReviews();
+renderServices();
+
+// ===== LOGOUT =====
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+    e.preventDefault();
+    try { await fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken } }); } catch(e) {}
+    authToken = '';
+    sessionStorage.removeItem('adminToken');
+    showLogin();
+    document.getElementById('loginPassword').value = '';
+});
+</script>
+</body>
+</html>
