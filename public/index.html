@@ -47,9 +47,8 @@
             </div>
             <div class="hero__visual">
                 <div class="hero__pattern">
-                    <svg class="hero__pattern-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 380" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <!-- ── Горизонтальные камни: свет сверху → тень снизу ── -->
+                    <div class="hero__pattern-grid">
+                        <div class="tile t1"></div><div class="tile t2"></div><div class="tile t3"></div><div class="tile t4"></div>
                             <linearGradient id="h1" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%"   stop-color="#eedfc0"/>
                                 <stop offset="42%"  stop-color="#cdb990"/>
@@ -142,17 +141,10 @@
                             </radialGradient>
                         </defs>
 
-                        <!-- Фон затирки (виден в угловых зонах при повороте) -->
-                        <rect width="380" height="380" fill="#161008"/>
-                        <!-- Брусчатка -->
-                        <rect width="380" height="380" fill="url(#cobble)"/>
-                        <!-- Виньетка -->
-                        <rect width="380" height="380" fill="url(#vig)"/>
-                        <!-- Тёплый глянец -->
-                        <rect width="380" height="380" fill="url(#warm)"/>
-                        <!-- Теневой угол -->
-                        <rect width="380" height="380" fill="url(#cool)"/>
-                    </svg>
+                        <div class="tile t5"></div><div class="tile t6"></div><div class="tile t7"></div><div class="tile t8"></div>
+                        <div class="tile t9"></div><div class="tile t10"></div><div class="tile t11"></div><div class="tile t12"></div>
+                        <div class="tile t13"></div><div class="tile t14"></div><div class="tile t15"></div><div class="tile t16"></div>
+                    </div>
                 </div>
             </div>
         </div>

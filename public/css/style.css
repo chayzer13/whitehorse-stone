@@ -272,10 +272,29 @@ img {
     position: relative;
 }
 
-.hero__pattern-svg {
-    display: block;
+.hero__pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 4px;
     width: 100%;
     height: 100%;
+    background: var(--border);
+}
+
+.tile {
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.t1, .t6, .t11, .t16 { background: #c4a882; }
+.t2, .t7, .t12, .t13 { background: #d4c4a8; }
+.t3, .t8, .t9, .t14  { background: #bfae8e; }
+.t4, .t5, .t10, .t15 { background: #a89878; }
+
+.tile:hover {
+    opacity: 0.8;
+    transform: scale(0.95);
 }
 
 /* Hero stats */
