@@ -1582,6 +1582,8 @@ img {
         height: 100vh;
         background: var(--bg);
         flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
         padding: 96px 32px 40px;
         gap: 8px;
         box-shadow: -8px 0 30px rgba(0,0,0,0.12);
