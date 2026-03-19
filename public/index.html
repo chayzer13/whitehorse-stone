@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>White Horse Stone — Тротуарная плитка и бордюры</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,98 +50,6 @@
                 <div class="hero__pattern">
                     <div class="hero__pattern-grid">
                         <div class="tile t1"></div><div class="tile t2"></div><div class="tile t3"></div><div class="tile t4"></div>
-                            <linearGradient id="h1" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%"   stop-color="#eedfc0"/>
-                                <stop offset="42%"  stop-color="#cdb990"/>
-                                <stop offset="100%" stop-color="#8c7a52"/>
-                            </linearGradient>
-                            <linearGradient id="h2" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%"   stop-color="#e4d4b0"/>
-                                <stop offset="42%"  stop-color="#c0aa80"/>
-                                <stop offset="100%" stop-color="#82704c"/>
-                            </linearGradient>
-                            <linearGradient id="h3" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%"   stop-color="#d6c8a4"/>
-                                <stop offset="42%"  stop-color="#b8a47c"/>
-                                <stop offset="100%" stop-color="#7a684a"/>
-                            </linearGradient>
-                            <!-- вкрапление светлое: крем/известняк -->
-                            <linearGradient id="hcream" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%"   stop-color="#f4ecda"/>
-                                <stop offset="42%"  stop-color="#ddd0b8"/>
-                                <stop offset="100%" stop-color="#b8ac94"/>
-                            </linearGradient>
-                            <!-- ── Вертикальные камни: свет слева → тень справа ── -->
-                            <linearGradient id="v1" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%"   stop-color="#e8dabc"/>
-                                <stop offset="42%"  stop-color="#c6b28a"/>
-                                <stop offset="100%" stop-color="#89784e"/>
-                            </linearGradient>
-                            <linearGradient id="v2" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%"   stop-color="#daccac"/>
-                                <stop offset="42%"  stop-color="#bba882"/>
-                                <stop offset="100%" stop-color="#7e6e50"/>
-                            </linearGradient>
-                            <!-- вкрапление тёмное: базальт/вулканический камень -->
-                            <linearGradient id="vdark" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%"   stop-color="#766a5a"/>
-                                <stop offset="42%"  stop-color="#574d3e"/>
-                                <stop offset="100%" stop-color="#342e24"/>
-                            </linearGradient>
-
-                            <!-- ── Паттерн: корзиночная вязка 120×120, повёрнут 45° ── -->
-                            <pattern id="cobble" width="120" height="120"
-                                     patternUnits="userSpaceOnUse"
-                                     patternTransform="rotate(45, 190, 190)">
-                                <!-- Тёмная затирка -->
-                                <rect width="120" height="120" fill="#161008"/>
-
-                                <!-- БЛОК A · лево/верх · 2 горизонтальных кирпича -->
-                                <rect x="2"  y="2"  width="56" height="25" rx="2.5" fill="url(#h1)"/>
-                                <rect x="3"  y="2"  width="54" height="1"           fill="rgba(255,248,210,0.28)"/>
-                                <rect x="2"  y="30" width="56" height="25" rx="2.5" fill="url(#h3)"/>
-                                <rect x="3"  y="30" width="54" height="1"           fill="rgba(255,248,210,0.18)"/>
-
-                                <!-- БЛОК B · право/верх · 2 вертикальных кирпича -->
-                                <rect x="62" y="2"  width="25" height="56" rx="2.5" fill="url(#v1)"/>
-                                <rect x="62" y="3"  width="1"  height="54"          fill="rgba(255,248,210,0.28)"/>
-                                <rect x="90" y="2"  width="25" height="56" rx="2.5" fill="url(#v2)"/>
-                                <rect x="90" y="3"  width="1"  height="54"          fill="rgba(255,248,210,0.16)"/>
-
-                                <!-- БЛОК C · лево/низ · тёмное вкрапление + обычный -->
-                                <rect x="2"  y="62" width="25" height="56" rx="2.5" fill="url(#vdark)"/>
-                                <rect x="2"  y="63" width="1"  height="54"          fill="rgba(255,248,210,0.10)"/>
-                                <rect x="30" y="62" width="25" height="56" rx="2.5" fill="url(#v1)"/>
-                                <rect x="30" y="63" width="1"  height="54"          fill="rgba(255,248,210,0.22)"/>
-
-                                <!-- БЛОК D · право/низ · светлое вкрапление + обычный -->
-                                <rect x="62" y="62" width="56" height="25" rx="2.5" fill="url(#hcream)"/>
-                                <rect x="63" y="62" width="54" height="1"           fill="rgba(255,248,210,0.32)"/>
-                                <rect x="62" y="90" width="56" height="25" rx="2.5" fill="url(#h2)"/>
-                                <rect x="63" y="90" width="54" height="1"           fill="rgba(255,248,210,0.20)"/>
-
-                                <!-- Замковый камень на стыке блоков -->
-                                <rect x="57" y="57" width="6" height="6" rx="1.5" fill="#2a2018"/>
-                                <rect x="57" y="57" width="6" height="1"           fill="rgba(255,248,210,0.08)"/>
-                            </pattern>
-
-                            <!-- ── Виньетка для глубины ── -->
-                            <radialGradient id="vig" cx="50%" cy="50%" r="72%">
-                                <stop offset="25%" stop-color="transparent"/>
-                                <stop offset="100%" stop-color="rgba(0,0,0,0.68)"/>
-                            </radialGradient>
-                            <!-- Тёплый свет (имитация золотого часа) -->
-                            <radialGradient id="warm" cx="28%" cy="26%" r="58%">
-                                <stop offset="0%"   stop-color="rgba(255,205,80,0.13)"/>
-                                <stop offset="100%" stop-color="transparent"/>
-                            </radialGradient>
-                            <!-- Холодный тёмный угол для объёма -->
-                            <radialGradient id="cool" cx="78%" cy="78%" r="45%">
-                                <stop offset="0%"   stop-color="rgba(30,18,0,0.25)"/>
-                                <stop offset="100%" stop-color="transparent"/>
-                            </radialGradient>
-                        </defs>
-
                         <div class="tile t5"></div><div class="tile t6"></div><div class="tile t7"></div><div class="tile t8"></div>
                         <div class="tile t9"></div><div class="tile t10"></div><div class="tile t11"></div><div class="tile t12"></div>
                         <div class="tile t13"></div><div class="tile t14"></div><div class="tile t15"></div><div class="tile t16"></div>
@@ -249,7 +158,7 @@
                     <p class="calc__result-label">Предварительная стоимость</p>
                     <p class="calc__result-value" id="calcValue">—</p>
                     <p class="calc__result-note">* Окончательная цена может отличаться. Свяжитесь с нами для точного расчёта.</p>
-                    <button class="btn btn--outline calc__result-btn" onclick="openContactChoice()">Получить точный расчёт</button>
+                    <button class="btn btn--outline calc__result-btn" onclick="openContactChoice()">📞 Получить точный расчёт</button>
                 </div>
             </div>
         </div>
@@ -297,27 +206,27 @@
                 <div class="service-card">
                     <div class="service-card__icon">🏭</div>
                     <h3 class="service-card__title">Производство</h3>
-                    <p class="service-card__desc">Собственный завод с современным оборудованием.<br>Контроль качества на каждом этапе, соответствие ГОСТам.</p>
+                    <p class="service-card__desc">Собственный завод с современным оборудованием. Контроль качества на каждом этапе, соответствие ГОСТам.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-card__icon">🚚</div>
                     <h3 class="service-card__title">Доставка</h3>
-                    <p class="service-card__desc">Доставка по городу и области собственным транспортом.<br>Бережная разгрузка манипулятором.</p>
+                    <p class="service-card__desc">Доставка по городу и области собственным транспортом. Бережная разгрузка манипулятором.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-card__icon">📐</div>
                     <h3 class="service-card__title">Замер и проект</h3>
-                    <p class="service-card__desc">Бесплатный выезд замерщика.<br>Составление сметы и точный расчёт материалов.</p>
+                    <p class="service-card__desc">Бесплатный выезд замерщика. Составление схемы раскладки и точный расчёт материалов.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-card__icon">🔨</div>
                     <h3 class="service-card__title">Укладка</h3>
-                    <p class="service-card__desc">Профессиональный монтаж с подготовкой основания.<br>Гарантия на работы — 1 год.</p>
+                    <p class="service-card__desc">Профессиональный монтаж с подготовкой основания. Гарантия на работы — 3 года.</p>
                 </div>
                 <div class="service-card">
                     <div class="service-card__icon">🔧</div>
                     <h3 class="service-card__title">Гарантия и сервис</h3>
-                    <p class="service-card__desc">Гарантия на продукцию до 1 года. Бесплатная замена при обнаружении дефекта.</p>
+                    <p class="service-card__desc">Гарантия на продукцию до 25 лет. Бесплатная замена при обнаружении дефекта.</p>
                 </div>
             </div>
 
