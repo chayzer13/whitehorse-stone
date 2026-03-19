@@ -509,13 +509,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let reviewPhotos = [];
     const reviewPhotoInput = document.getElementById('reviewPhotoInput');
     const reviewPhotosUpload = document.getElementById('reviewPhotosUpload');
-    const reviewPhotoAdd = document.getElementById('reviewPhotoAdd');
-
-    reviewPhotoAdd.addEventListener('click', () => reviewPhotoInput.click());
 
     reviewPhotoInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
         files.forEach(file => {
+            if (reviewPhotos.length >= 3) return;
             const reader = new FileReader();
             reader.onload = (ev) => {
                 reviewPhotos.push(ev.target.result);
@@ -530,6 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const existing = reviewPhotosUpload.querySelectorAll('.review-form__photo-thumb');
         existing.forEach(el => el.remove());
 
+        const addBtn = reviewPhotosUpload.querySelector('.review-form__photo-add');
+
         reviewPhotos.forEach((src, idx) => {
             const thumb = document.createElement('div');
             thumb.className = 'review-form__photo-thumb';
@@ -538,10 +538,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 reviewPhotos.splice(idx, 1);
                 renderReviewPhotoPreviews();
             });
-            reviewPhotosUpload.insertBefore(thumb, reviewPhotoAdd);
+            reviewPhotosUpload.insertBefore(thumb, addBtn);
         });
 
-        // no limit on photo count
+        // Скрываем кнопку добавления если уже 3 фото
+        if (addBtn) addBtn.style.display = reviewPhotos.length >= 3 ? 'none' : '';
     }
 
     const submitReview = document.getElementById('submitReview');
