@@ -478,6 +478,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', updateSlider);
 
+    // Touch swipe for reviews slider
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isSwiping = false;
+
+    track.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isSwiping = false;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', e => {
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
+        if (!isSwiping && dx > dy && dx > 8) {
+            isSwiping = true;
+        }
+    }, { passive: true });
+
+    track.addEventListener('touchend', e => {
+        if (!isSwiping) return;
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            const cards = track.querySelectorAll('.review-card');
+            const perView = getCardsPerView();
+            if (diff > 0 && reviewIndex < cards.length - perView) {
+                reviewIndex++;
+                updateSlider();
+            } else if (diff < 0 && reviewIndex > 0) {
+                reviewIndex--;
+                updateSlider();
+            }
+        }
+    }, { passive: true });
+
     // ===== REVIEW FORM =====
     const starsInput = document.getElementById('starsInput');
     const starBtns = starsInput.querySelectorAll('.star-btn');
