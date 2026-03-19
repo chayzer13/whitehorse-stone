@@ -275,6 +275,7 @@ img {
 .hero__pattern-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
     gap: 4px;
     padding: 4px;
     width: 100%;
