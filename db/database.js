@@ -20,15 +20,15 @@ async function initDb() {
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             type VARCHAR(100) NOT NULL DEFAULT 'Брусчатка',
-            specs TEXT DEFAULT '',
+            specs TEXT,
             price VARCHAR(100) NOT NULL,
-            colors TEXT DEFAULT '',
-            description TEXT DEFAULT '',
+            colors TEXT,
+            description TEXT,
             bg VARCHAR(50) DEFAULT '#c4a882',
-            photo TEXT DEFAULT NULL,
-            variations TEXT DEFAULT '[]',
+            photo TEXT,
+            variations TEXT,
             badge VARCHAR(100) DEFAULT '',
-            photos TEXT DEFAULT '[]',
+            photos TEXT,
             price_unit VARCHAR(50) DEFAULT '₽/м²',
             is_popular TINYINT(1) DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -44,7 +44,7 @@ async function initDb() {
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
             date VARCHAR(100) DEFAULT '',
             city VARCHAR(100) DEFAULT '',
-            photos TEXT DEFAULT '[]',
+            photos TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     `);
