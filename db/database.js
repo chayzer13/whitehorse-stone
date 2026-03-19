@@ -1,15 +1,18 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '3306'),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    charset: 'utf8mb4'
-});
+// Railway предоставляет MYSQL_URL автоматически; также поддерживаем отдельные переменные
+const pool = process.env.MYSQL_URL
+    ? mysql.createPool(process.env.MYSQL_URL + '?charset=utf8mb4')
+    : mysql.createPool({
+        host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || '3306'),
+        user: process.env.DB_USER || process.env.MYSQLUSER,
+        password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+        database: process.env.DB_NAME || process.env.MYSQLDATABASE,
+        waitForConnections: true,
+        connectionLimit: 10,
+        charset: 'utf8mb4'
+    });
 
 async function initDb() {
     await pool.execute(`
