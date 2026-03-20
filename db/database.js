@@ -25,15 +25,20 @@ async function initDb() {
             colors TEXT,
             description TEXT,
             bg VARCHAR(50) DEFAULT '#c4a882',
-            photo TEXT,
-            variations TEXT,
+            photo MEDIUMTEXT,
+            variations MEDIUMTEXT,
             badge VARCHAR(100) DEFAULT '',
-            photos TEXT,
+            photos MEDIUMTEXT,
             price_unit VARCHAR(50) DEFAULT '₽/м²',
             is_popular TINYINT(1) DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     `);
+
+    // Migrate existing columns from TEXT to MEDIUMTEXT (safe to run multiple times)
+    await pool.execute(`ALTER TABLE products MODIFY COLUMN photo MEDIUMTEXT`).catch(() => {});
+    await pool.execute(`ALTER TABLE products MODIFY COLUMN photos MEDIUMTEXT`).catch(() => {});
+    await pool.execute(`ALTER TABLE products MODIFY COLUMN variations MEDIUMTEXT`).catch(() => {});
 
     await pool.execute(`
         CREATE TABLE IF NOT EXISTS reviews (
@@ -44,10 +49,13 @@ async function initDb() {
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
             date VARCHAR(100) DEFAULT '',
             city VARCHAR(100) DEFAULT '',
-            photos TEXT,
+            photos MEDIUMTEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     `);
+
+    // Migrate reviews photos column
+    await pool.execute(`ALTER TABLE reviews MODIFY COLUMN photos MEDIUMTEXT`).catch(() => {});
 
     await pool.execute(`
         CREATE TABLE IF NOT EXISTS calculations (
