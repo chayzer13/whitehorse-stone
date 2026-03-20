@@ -567,7 +567,9 @@ async function api(url, options = {}) {
     if (options.body && typeof options.body === 'object') options.body = JSON.stringify(options.body);
     const res = await fetch(url, options);
     if (res.status === 401) { authToken = ''; sessionStorage.removeItem('adminToken'); showLogin(); throw new Error('Unauthorized'); }
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data && data.error ? data.error : 'Ошибка запроса');
+    return data;
 }
 
 // ===== SIDEBAR NAV =====
@@ -614,21 +616,79 @@ const pPhotoInput = document.getElementById('pPhoto');
 const photoPreview = document.getElementById('photoPreview');
 const photoPlaceholder = document.getElementById('photoPlaceholder');
 
-pPhotoInput.addEventListener('change', (e) => {
+function setProductPreview(src) {
+    photoPlaceholder.style.display = src ? 'none' : '';
+    let img = photoPreview.querySelector('img');
+    if (!src) {
+        if (img) img.remove();
+        return;
+    }
+    if (!img) {
+        img = document.createElement('img');
+        photoPreview.appendChild(img);
+    }
+    img.src = src;
+}
+
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+        reader.readAsDataURL(file);
+    });
+}
+
+function imageFromDataUrl(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Не удалось обработать изображение'));
+        img.src = dataUrl;
+    });
+}
+
+async function optimizeImageFile(file, options = {}) {
+    const {
+        maxWidth = 1600,
+        maxHeight = 1600,
+        quality = 0.82,
+        mimeType = 'image/jpeg'
+    } = options;
+
+    const sourceDataUrl = await fileToDataUrl(file);
+    const img = await imageFromDataUrl(sourceDataUrl);
+    const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+    const width = Math.max(1, Math.round(img.width * scale));
+    const height = Math.max(1, Math.round(img.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return sourceDataUrl;
+
+    if (mimeType === 'image/jpeg') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    ctx.drawImage(img, 0, 0, width, height);
+    return canvas.toDataURL(mimeType, quality);
+}
+
+pPhotoInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        currentPhotoData = ev.target.result;
-        photoPlaceholder.style.display = 'none';
-        let img = photoPreview.querySelector('img');
-        if (!img) {
-            img = document.createElement('img');
-            photoPreview.appendChild(img);
-        }
-        img.src = currentPhotoData;
-    };
-    reader.readAsDataURL(file);
+    try {
+        currentPhotoData = await optimizeImageFile(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.82 });
+        setProductPreview(currentPhotoData);
+    } catch (err) {
+        alert(err.message || 'Не удалось загрузить фото');
+    } finally {
+        e.target.value = '';
+    }
 });
 
 // ===== COLOR PICKER ADMIN LOGIC =====
@@ -702,12 +762,17 @@ function renderColorPhotos() {
         row.querySelector('.cp-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                colorPhotosData[idx].url = ev.target.result;
-                row.querySelector('.cp-thumb').innerHTML = '<img src="'+ev.target.result+'">';
-            };
-            reader.readAsDataURL(file);
+            optimizeImageFile(file, { maxWidth: 1400, maxHeight: 1400, quality: 0.8 })
+                .then((dataUrl) => {
+                    colorPhotosData[idx].url = dataUrl;
+                    row.querySelector('.cp-thumb').innerHTML = '<img src="'+dataUrl+'">';
+                })
+                .catch((err) => {
+                    alert(err.message || 'Не удалось загрузить фото');
+                })
+                .finally(() => {
+                    e.target.value = '';
+                });
         });
         row.querySelector('.var-del').addEventListener('click', () => {
             colorPhotosData.splice(idx, 1);
@@ -749,9 +814,7 @@ function clearProductForm() {
     document.getElementById('pDesc').value = '';
     document.getElementById('pBg').value = '#c4a882';
     currentPhotoData = null;
-    photoPlaceholder.style.display = '';
-    const img = photoPreview.querySelector('img');
-    if (img) img.remove();
+    setProductPreview('');
     colorPhotosData = [];
     renderColorPhotos();
     document.getElementById('pPopular').checked = false;
@@ -778,14 +841,18 @@ document.getElementById('saveProduct').addEventListener('click', async () => {
     const is_popular = document.getElementById('pPopular').checked;
     const data = { name, type, specs, price, colors, description, bg, photo: currentPhotoData || null, variations, badge, photos, price_unit, is_popular };
 
-    if (editingProductId) {
-        await api('/api/products/' + editingProductId, { method: 'PUT', body: data });
-    } else {
-        await api('/api/products', { method: 'POST', body: data });
-    }
+    try {
+        if (editingProductId) {
+            await api('/api/products/' + editingProductId, { method: 'PUT', body: data });
+        } else {
+            await api('/api/products', { method: 'POST', body: data });
+        }
 
-    productModal.classList.remove('active');
-    renderProducts();
+        productModal.classList.remove('active');
+        renderProducts();
+    } catch (err) {
+        alert(err.message || 'Не удалось сохранить товар');
+    }
 });
 
 async function renderProducts() {
@@ -846,16 +913,7 @@ window.editProduct = async function(id) {
     try { colorPhotosData = JSON.parse(p.photos || '[]'); } catch(e) { colorPhotosData = []; }
     renderColorPhotos();
 
-    if (p.photo) {
-        photoPlaceholder.style.display = 'none';
-        let img = photoPreview.querySelector('img');
-        if (!img) { img = document.createElement('img'); photoPreview.appendChild(img); }
-        img.src = p.photo;
-    } else {
-        photoPlaceholder.style.display = '';
-        const img = photoPreview.querySelector('img');
-        if (img) img.remove();
-    }
+    setProductPreview(p.photo || '');
 
     productModal.classList.add('active');
 };
