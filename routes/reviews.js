@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/database');
+const { notifyIndexNow } = require('../utils/indexnow');
 
 async function allRows(sql, params = []) {
     const [rows] = await pool.execute(sql, params);
@@ -60,6 +61,7 @@ router.put('/:id/approve', async (req, res) => {
         if (!review) return res.status(404).json({ error: 'Отзыв не найден' });
 
         await runSql("UPDATE reviews SET status = 'approved' WHERE id = ?", [Number(req.params.id)]);
+        notifyIndexNow('/');
         res.json(await oneRow('SELECT * FROM reviews WHERE id = ?', [Number(req.params.id)]));
     } catch (e) {
         res.status(500).json({ error: 'Ошибка БД' });

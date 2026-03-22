@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/database');
+const { notifyIndexNow } = require('../utils/indexnow');
 
 async function allRows(sql, params = []) {
     const [rows] = await pool.execute(sql, params);
@@ -48,7 +49,9 @@ router.post('/', async (req, res) => {
             [name, type || 'Брусчатка', specs || '', price, colors || '', description || '', bg || '#c4a882', photo || null, variations || '[]', badge || '', photos || '[]', price_unit || '₽/м²', is_popular ? 1 : 0]
         );
 
-        res.status(201).json(await oneRow('SELECT * FROM products WHERE id = ?', [result.insertId]));
+        const product = await oneRow('SELECT * FROM products WHERE id = ?', [result.insertId]);
+        notifyIndexNow('/');
+        res.status(201).json(product);
     } catch (e) {
         res.status(500).json({ error: 'Ошибка БД' });
     }
@@ -80,7 +83,9 @@ router.put('/:id', async (req, res) => {
             ]
         );
 
-        res.json(await oneRow('SELECT * FROM products WHERE id = ?', [Number(req.params.id)]));
+        const updated = await oneRow('SELECT * FROM products WHERE id = ?', [Number(req.params.id)]);
+        notifyIndexNow('/');
+        res.json(updated);
     } catch (e) {
         res.status(500).json({ error: 'Ошибка БД' });
     }
@@ -93,6 +98,7 @@ router.delete('/:id', async (req, res) => {
         if (!existing) return res.status(404).json({ error: 'Товар не найден' });
 
         await runSql('DELETE FROM products WHERE id = ?', [Number(req.params.id)]);
+        notifyIndexNow('/');
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Ошибка БД' });

@@ -14,6 +14,14 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Статические файлы
 app.use(express.static(path.join(__dirname, 'public')));
 
+// IndexNow — отдаём файл верификации ключа
+const INDEXNOW_KEY = process.env.INDEXNOW_KEY || '';
+if (INDEXNOW_KEY) {
+    app.get(`/${INDEXNOW_KEY}.txt`, (req, res) => {
+        res.type('text/plain').send(INDEXNOW_KEY);
+    });
+}
+
 // Auth
 app.use('/api/auth', authRouter);
 
