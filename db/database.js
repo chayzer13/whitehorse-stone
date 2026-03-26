@@ -1,18 +1,15 @@
 const mysql = require('mysql2/promise');
 
-// Railway предоставляет MYSQL_URL автоматически; также поддерживаем отдельные переменные
-const pool = process.env.MYSQL_URL
-    ? mysql.createPool(process.env.MYSQL_URL + '?charset=utf8mb4')
-    : mysql.createPool({
-        host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
-        port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || '3306'),
-        user: process.env.DB_USER || process.env.MYSQLUSER,
-        password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-        database: process.env.DB_NAME || process.env.MYSQLDATABASE,
-        waitForConnections: true,
-        connectionLimit: 10,
-        charset: 'utf8mb4'
-    });
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '3306'),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    charset: 'utf8mb4'
+});
 
 async function initDb() {
     await pool.execute(`
@@ -82,6 +79,27 @@ async function initDb() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
     `);
+
+    await pool.execute(`
+        CREATE TABLE IF NOT EXISTS portfolio (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            photos MEDIUMTEXT,
+            sort_order INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    `);
+
+    await pool.execute(`
+        CREATE TABLE IF NOT EXISTS settings (
+            \`key\` VARCHAR(100) PRIMARY KEY,
+            value TEXT
+        ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    `);
+
+    // Default setting: portfolio visible
+    await pool.execute(`INSERT IGNORE INTO settings (\`key\`, value) VALUES ('portfolio_visible', '1')`);
 }
 
 module.exports = { pool, initDb };

@@ -2,7 +2,14 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin
+Disallow: /admin.html
+
+User-agent: Yandex
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin.html
+Crawl-delay: 1
 
 Sitemap: https://whitehorsestone.ru/sitemap.xml
-
 Host: https://whitehorsestone.ru

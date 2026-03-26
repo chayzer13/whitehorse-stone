@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "echo Build complete — no compilation needed for this project. Run: npm start"
+    "build": "echo No build step needed"
   },
   "dependencies": {
     "dotenv": "^17.3.1",

@@ -306,6 +306,7 @@
             <button class="sidebar__link" data-section="calculations"><span class="sidebar__link-icon">📐</span> Расчёты</button>
             <button class="sidebar__link" data-section="reviews"><span class="sidebar__link-icon">💬</span> Отзывы</button>
             <button class="sidebar__link" data-section="services"><span class="sidebar__link-icon">🔧</span> Прайс-лист</button>
+            <button class="sidebar__link" data-section="portfolio"><span class="sidebar__link-icon">📸</span> Портфолио</button>
         </nav>
         <div class="sidebar__back">
             <a href="index.html">← Вернуться на сайт</a>
@@ -377,6 +378,25 @@
             <div id="servicesList"></div>
             <div class="empty hidden" id="servicesEmpty">Услуг пока нет. Добавьте первую!</div>
         </div>
+
+        <!-- ===== PORTFOLIO ===== -->
+        <div class="section-panel" id="panel-portfolio">
+            <h1 class="page-title">Портфолио — наши работы</h1>
+            <p class="page-subtitle">Добавляйте фотографии выполненных работ с описанием</p>
+
+            <div class="stats-row" id="portfolioStats"></div>
+
+            <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <button class="btn btn--primary" id="addPortfolioBtn">+ Добавить работу</button>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;">
+                    <input type="checkbox" id="portfolioVisibleToggle" checked>
+                    Показывать блок «Наши работы» на сайте
+                </label>
+            </div>
+
+            <div id="portfolioList"></div>
+            <div class="empty hidden" id="portfolioEmpty">Работ пока нет. Добавьте первую!</div>
+        </div>
     </main>
 </div>
 
@@ -413,14 +433,16 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Плашка</label>
-                <select class="form-select" id="pBadge">
-                    <option value="">Нет</option>
-                    <option value="Новинка">Новинка</option>
-                    <option value="Хит">Хит</option>
-                    <option value="Акция">Акция</option>
-                    <option value="Распродажа">Распродажа</option>
-                </select>
+                <label class="form-label">Плашки</label>
+                <div id="pBadgeGroup" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="Новинка"> Новинка</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="Хит"> Хит</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="Акция"> Акция</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="Распродажа"> Распродажа</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="Белый цемент"> Белый цемент</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="МК2"> МК2</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;"><input type="checkbox" class="badge-check" value="МК3"> МК3</label>
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Популярный товар</label>
@@ -488,6 +510,37 @@
         <div style="display:flex;gap:10px;margin-top:8px;">
             <button class="btn btn--primary" id="saveProduct" style="flex:1">Сохранить</button>
             <button class="btn btn--outline" id="cancelProduct">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Form Modal -->
+<div class="modal-bg" id="portfolioModal">
+    <div class="modal-panel" style="max-width:560px;">
+        <button class="modal-panel__close" id="portfolioModalClose">&times;</button>
+        <h3 class="modal-panel__title" id="portfolioModalTitle">Добавить работу</h3>
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: 1/-1;">
+                <label class="form-label">Название / место</label>
+                <input type="text" class="form-input" id="pfTitle" placeholder="Например: Укладка на ул. Ленина" maxlength="100">
+            </div>
+            <div class="form-group" style="grid-column: 1/-1;">
+                <label class="form-label">Описание</label>
+                <textarea class="form-input" id="pfDesc" rows="3" placeholder="Краткое описание работы" maxlength="500" style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Порядок сортировки</label>
+                <input type="number" class="form-input" id="pfSort" value="0">
+            </div>
+            <div class="form-group" style="grid-column: 1/-1;">
+                <label class="form-label">Фотографии (до 20)</label>
+                <input type="file" class="form-input" id="pfPhotos" multiple accept="image/*">
+                <div id="pfPhotoPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+            </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:12px;">
+            <button class="btn btn--primary" id="portfolioSaveBtn">Сохранить</button>
+            <button class="btn btn--outline" id="portfolioCancelBtn">Отмена</button>
         </div>
     </div>
 </div>
@@ -576,15 +629,28 @@ async function api(url, options = {}) {
 const sidebarLinks = document.querySelectorAll('.sidebar__link');
 const panels = document.querySelectorAll('.section-panel');
 
+function switchSection(section) {
+    sidebarLinks.forEach(l => l.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    const link = Array.from(sidebarLinks).find(l => l.dataset.section === section);
+    if (link) link.classList.add('active');
+    const panel = document.getElementById('panel-' + section);
+    if (panel) panel.classList.add('active');
+    sessionStorage.setItem('adminActiveSection', section);
+}
+
 sidebarLinks.forEach(link => {
     link.addEventListener('click', () => {
-        sidebarLinks.forEach(l => l.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
-        link.classList.add('active');
-        document.getElementById('panel-' + link.dataset.section).classList.add('active');
+        switchSection(link.dataset.section);
         document.getElementById('sidebar').classList.remove('open');
     });
 });
+
+// Restore last active section after reload
+const savedSection = sessionStorage.getItem('adminActiveSection');
+if (savedSection && document.getElementById('panel-' + savedSection)) {
+    switchSection(savedSection);
+}
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('open');
@@ -720,7 +786,7 @@ colorPickerAdmin.addEventListener('click', (e) => {
 
 // ===== VARIATIONS EDITOR =====
 const variationsRows = document.getElementById('variationsRows');
-const colorOptions = ['серый','красный','коричневый','чёрный','терракот','песочный','графит','белый','охра','микс','бежевый','антрацит','зелёный'];
+const colorOptions = ['антрацит','бежевый','белый','вегас','голубая лагуна','графит','закат','зелёный','коричневый','красный','листопад','малахит','матадор','микс','мрамор','охра','песочный','сицилия','скандинавия','снежный барс','серый','терракот','техас','тирамису','туман','феникс','чёрный'];
 
 function addVariationRow(color, size, price) {
     const row = document.createElement('div');
@@ -807,7 +873,7 @@ function clearProductForm() {
     document.getElementById('pSpecs').value = '';
     document.getElementById('pPrice').value = '';
     document.getElementById('pPriceUnit').value = '₽/м²';
-    document.getElementById('pBadge').value = '';
+    document.querySelectorAll('.badge-check').forEach(cb => cb.checked = false);
     pColorsHidden.value = '';
     setColorsFromString('');
     setVariationsFromArray([]);
@@ -818,6 +884,7 @@ function clearProductForm() {
     colorPhotosData = [];
     renderColorPhotos();
     document.getElementById('pPopular').checked = false;
+    document.querySelectorAll('.badge-check').forEach(cb => cb.checked = false);
 }
 
 document.getElementById('saveProduct').addEventListener('click', async () => {
@@ -826,7 +893,7 @@ document.getElementById('saveProduct').addEventListener('click', async () => {
     const specs = document.getElementById('pSpecs').value.trim();
     const price = document.getElementById('pPrice').value.trim();
     const price_unit = document.getElementById('pPriceUnit').value;
-    const badge = document.getElementById('pBadge').value;
+    const badge = Array.from(document.querySelectorAll('.badge-check:checked')).map(cb => cb.value).join(', ');
     const colors = document.getElementById('pColors').value.trim();
     const description = document.getElementById('pDesc').value.trim();
     const bg = document.getElementById('pBg').value;
@@ -868,7 +935,9 @@ async function renderProducts() {
     productsEmpty.classList.toggle('hidden', products.length > 0);
 
     productsGrid.innerHTML = products.map(p => {
-        const badgeClass = {'Новинка':'badge--new','Хит':'badge--hit','Акция':'badge--sale','Распродажа':'badge--promo'}[p.badge] || '';
+        const badgeClassMap = {'Новинка':'badge--new','Хит':'badge--hit','Акция':'badge--sale','Распродажа':'badge--promo','Белый цемент':'badge--new','МК2':'badge--hit','МК3':'badge--hit'};
+        const badges = (p.badge || '').split(',').map(b => b.trim()).filter(Boolean);
+        const badgesHtml = badges.map(b => '<span class="badge '+(badgeClassMap[b]||'')+'" style="margin-left:4px;">'+esc(b)+'</span>').join('');
         return `
         <div class="card product-admin-card" data-id="${p.id}">
             <div class="product-admin-card__img" style="background:${p.photo ? 'none' : p.bg || '#c4a882'}; border-radius: 10px;">
@@ -876,7 +945,7 @@ async function renderProducts() {
             </div>
             <div class="product-admin-card__body">
                 <span class="badge ${p.type === 'Брусчатка' ? 'badge--paving' : 'badge--border'}">${esc(p.type)}</span>
-                ${p.badge ? '<span class="badge '+badgeClass+'" style="margin-left:4px;">'+esc(p.badge)+'</span>' : ''}
+                ${badgesHtml}
                 ${p.is_popular ? '<span class="badge" style="margin-left:4px;background:#fff3e0;color:#e65100;">★ Популярный</span>' : ''}
                 <h3 class="product-admin-card__name">${esc(p.name)}</h3>
                 <p class="product-admin-card__info">${esc(p.specs)} · ${esc(p.colors)}</p>
@@ -901,7 +970,14 @@ window.editProduct = async function(id) {
     document.getElementById('pSpecs').value = p.specs || '';
     document.getElementById('pPrice').value = p.price;
     document.getElementById('pPriceUnit').value = p.price_unit || '₽/м²';
-    document.getElementById('pBadge').value = p.badge || '';
+    // Set badge checkboxes
+    document.querySelectorAll('.badge-check').forEach(cb => cb.checked = false);
+    if (p.badge) {
+        p.badge.split(',').map(b => b.trim()).forEach(b => {
+            const cb = document.querySelector('.badge-check[value="' + b + '"]');
+            if (cb) cb.checked = true;
+        });
+    }
     document.getElementById('pPopular').checked = !!p.is_popular;
     setColorsFromString(p.colors || '');
     try { setVariationsFromArray(JSON.parse(p.variations || '[]')); } catch(e) { setVariationsFromArray([]); }
@@ -1161,11 +1237,168 @@ window.deleteService = function(id) {
         .then(() => renderServices());
 };
 
+// =========================================================
+//                     PORTFOLIO
+// =========================================================
+const portfolioModal = document.getElementById('portfolioModal');
+let editingPortfolioId = null;
+let portfolioPhotosData = [];
+
+document.getElementById('addPortfolioBtn').addEventListener('click', () => {
+    editingPortfolioId = null;
+    document.getElementById('portfolioModalTitle').textContent = 'Добавить работу';
+    document.getElementById('pfTitle').value = '';
+    document.getElementById('pfDesc').value = '';
+    document.getElementById('pfSort').value = '0';
+    document.getElementById('pfPhotos').value = '';
+    document.getElementById('pfPhotoPreview').innerHTML = '';
+    portfolioPhotosData = [];
+    portfolioModal.classList.add('active');
+});
+
+document.getElementById('portfolioModalClose').addEventListener('click', () => portfolioModal.classList.remove('active'));
+document.getElementById('portfolioCancelBtn').addEventListener('click', () => portfolioModal.classList.remove('active'));
+portfolioModal.addEventListener('click', (e) => { if (e.target === portfolioModal) portfolioModal.classList.remove('active'); });
+
+document.getElementById('pfPhotos').addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+        if (portfolioPhotosData.length >= 20) break;
+        try {
+            const dataUrl = await optimizeImageFile(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.82 });
+            portfolioPhotosData.push(dataUrl);
+        } catch(err) {}
+    }
+    renderPfPhotoPreviews();
+    e.target.value = '';
+});
+
+function renderPfPhotoPreviews() {
+    const container = document.getElementById('pfPhotoPreview');
+    container.innerHTML = portfolioPhotosData.map((src, i) =>
+        '<div style="position:relative;width:80px;height:80px;">' +
+        '<img src="'+src+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">' +
+        '<button type="button" onclick="removePfPhoto('+i+')" style="position:absolute;top:-6px;right:-6px;background:#e53935;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;">&times;</button>' +
+        '</div>'
+    ).join('');
+}
+
+window.removePfPhoto = function(i) {
+    portfolioPhotosData.splice(i, 1);
+    renderPfPhotoPreviews();
+};
+
+document.getElementById('portfolioSaveBtn').addEventListener('click', async () => {
+    const title = document.getElementById('pfTitle').value.trim();
+    const description = document.getElementById('pfDesc').value.trim();
+    const sort_order = parseInt(document.getElementById('pfSort').value) || 0;
+    if (!title) return alert('Введите название');
+    if (portfolioPhotosData.length === 0) return alert('Добавьте хотя бы одно фото');
+
+    const body = { title, description, photos: JSON.stringify(portfolioPhotosData), sort_order };
+
+    try {
+        if (editingPortfolioId) {
+            await api('/api/portfolio/' + editingPortfolioId, { method: 'PUT', body });
+        } else {
+            await api('/api/portfolio', { method: 'POST', body });
+        }
+        portfolioModal.classList.remove('active');
+        renderPortfolio();
+    } catch(err) {
+        alert(err.message || 'Ошибка сохранения');
+    }
+});
+
+// Visibility toggle
+document.getElementById('portfolioVisibleToggle').addEventListener('change', async (e) => {
+    try {
+        await api('/api/portfolio/visibility', { method: 'PUT', body: { visible: e.target.checked } });
+    } catch(err) {
+        e.target.checked = !e.target.checked;
+    }
+});
+
+async function renderPortfolio() {
+    const data = await api('/api/portfolio');
+    const items = data.items || [];
+
+    document.getElementById('portfolioVisibleToggle').checked = !!data.visible;
+
+    document.getElementById('portfolioStats').innerHTML = `
+        <div class="stat-card"><div class="stat-card__number">${items.length}</div><div class="stat-card__label">Всего работ</div></div>
+        <div class="stat-card"><div class="stat-card__number">${data.visible ? 'Да' : 'Нет'}</div><div class="stat-card__label">Видимость</div></div>
+    `;
+
+    document.getElementById('portfolioEmpty').classList.toggle('hidden', items.length > 0);
+
+    const list = document.getElementById('portfolioList');
+    list.innerHTML = items.map(item => {
+        let photos = [];
+        try { photos = JSON.parse(item.photos); } catch(e) {}
+        const thumbs = photos.slice(0, 4).map(src =>
+            '<img src="'+esc(src)+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">'
+        ).join('');
+        const extra = photos.length > 4 ? '<span style="font-size:0.85rem;color:var(--text-sec);">+' + (photos.length - 4) + '</span>' : '';
+
+        return `
+        <div class="card" data-id="${item.id}" style="margin-bottom:12px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${thumbs}${extra}</div>
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-weight:600;font-size:1rem;">${esc(item.title)}</div>
+                    ${item.description ? '<div style="color:var(--text-sec);font-size:0.85rem;margin-top:4px;">' + esc(item.description) + '</div>' : ''}
+                    <div style="color:var(--text-sec);font-size:0.8rem;margin-top:4px;">📷 ${photos.length} фото · Порядок: ${item.sort_order || 0}</div>
+                </div>
+                <div style="display:flex;gap:6px;align-self:center;">
+                    <button class="btn btn--outline btn--sm" onclick="editPortfolio(${item.id})">Изменить</button>
+                    <button class="btn btn--red btn--sm" onclick="deletePortfolio(${item.id})">Удалить</button>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+window.editPortfolio = async function(id) {
+    const data = await api('/api/portfolio');
+    const item = (data.items || []).find(i => i.id === id);
+    if (!item) return;
+
+    editingPortfolioId = id;
+    document.getElementById('portfolioModalTitle').textContent = 'Редактировать работу';
+    document.getElementById('pfTitle').value = item.title;
+    document.getElementById('pfDesc').value = item.description || '';
+    document.getElementById('pfSort').value = item.sort_order || 0;
+    document.getElementById('pfPhotos').value = '';
+
+    try { portfolioPhotosData = JSON.parse(item.photos); } catch(e) { portfolioPhotosData = []; }
+    renderPfPhotoPreviews();
+    portfolioModal.classList.add('active');
+};
+
+window.deletePortfolio = async function(id) {
+    if (!confirm('Удалить эту работу?')) return;
+    await api('/api/portfolio/' + id, { method: 'DELETE' });
+    renderPortfolio();
+};
+
 // ===== INIT =====
 renderProducts();
 renderCalculations();
 renderReviews();
 renderServices();
+renderPortfolio();
+
+// ===== AUTO-REFRESH (every 15s) =====
+setInterval(() => {
+    if (!authToken) return;
+    renderProducts();
+    renderCalculations();
+    renderReviews();
+    renderServices();
+    renderPortfolio();
+}, 15000);
 
 // ===== LOGOUT =====
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {

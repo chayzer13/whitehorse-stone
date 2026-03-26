@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // ===== COOKIE BANNER =====
+    const cookieBanner = document.getElementById('cookieBanner');
+    if (cookieBanner) {
+        if (localStorage.getItem('cookieAccepted')) {
+            cookieBanner.classList.add('hidden');
+        }
+        document.getElementById('cookieAccept').addEventListener('click', () => {
+            localStorage.setItem('cookieAccepted', '1');
+            cookieBanner.classList.add('hidden');
+        });
+    }
+
     // ===== HEADER SCROLL =====
     const header = document.getElementById('header');
     window.addEventListener('scroll', () => {
@@ -47,7 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         'чёрный': '#2c2c2c', 'терракот': '#c4631e', 'песочный': '#d4b896',
         'графит': '#555555', 'белый': '#f0f0f0', 'охра': '#cc7722',
         'микс': 'linear-gradient(135deg, #c4a882, #9e9e9e, #795548)',
-        'бежевый': '#d4c4a8', 'антрацит': '#3a3a3a', 'зелёный': '#5a8a5a'
+        'бежевый': '#d4c4a8', 'антрацит': '#3a3a3a', 'зелёный': '#5a8a5a',
+        'малахит': '#0b6623', 'туман': '#b0b8bf',
+        'мрамор': '#e0dcd5', 'голубая лагуна': '#3aafcc',
+        'вегас': '#d4a537', 'сицилия': '#c97d4e',
+        'снежный барс': '#dce4e8', 'техас': '#8b5a2b',
+        'листопад': '#c4782e', 'матадор': '#8b1a1a',
+        'феникс': '#d45500', 'закат': '#e8734a',
+        'скандинавия': '#a3b5c0', 'тирамису': '#b89a7a'
     };
 
     let currentVariations = [];
@@ -75,13 +94,18 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselIndex = 0;
 
         // Main photo/bg as first slide
+        var carouselImageUrls = [];
         const firstSlide = document.createElement('div');
         firstSlide.className = 'modal__carousel-slide';
         if (mainPhoto) {
             firstSlide.style.background = 'url(' + encodeURI(mainPhoto) + ') center/cover no-repeat';
+            carouselImageUrls.push(mainPhoto);
         } else {
             firstSlide.style.background = mainBg || '#c4a882';
         }
+        firstSlide.addEventListener('click', () => {
+            if (carouselImageUrls.length) openPhotoLightbox(carouselImageUrls[carouselIndex] || carouselImageUrls[0], carouselImageUrls);
+        });
         modalCarouselTrack.appendChild(firstSlide);
         carouselSlides.push(firstSlide);
 
@@ -91,8 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const slide = document.createElement('div');
                 slide.className = 'modal__carousel-slide';
                 slide.style.background = 'url(' + encodeURI(p.url) + ') center/cover no-repeat';
+                slide.addEventListener('click', () => {
+                    openPhotoLightbox(p.url, carouselImageUrls);
+                });
                 modalCarouselTrack.appendChild(slide);
                 carouselSlides.push(slide);
+                carouselImageUrls.push(p.url);
             }
         });
 
@@ -121,6 +149,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modalPrev.addEventListener('click', () => goToSlide(carouselIndex - 1));
     modalNext.addEventListener('click', () => goToSlide(carouselIndex + 1));
+
+    // Swipe support for modal carousel
+    (function() {
+        const carousel = document.getElementById('modalCarousel');
+        let touchStartX = 0, touchEndX = 0;
+        carousel.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 40) {
+                if (diff > 0) goToSlide(carouselIndex + 1);
+                else goToSlide(carouselIndex - 1);
+            }
+        });
+    })();
 
     function updateModalPhoto(colorName) {
         const photo = currentColorPhotos.find(p => p.color && p.color.toLowerCase() === colorName.toLowerCase());
@@ -185,14 +228,15 @@ document.addEventListener('DOMContentLoaded', () => {
         modalColorPicker.innerHTML = '';
         modalSizePicker.innerHTML = '';
 
-        // Badge
-        const existingBadge = modalName.parentElement.querySelector('.modal__badge');
-        if (existingBadge) existingBadge.remove();
+        // Badge(s)
+        modalName.parentElement.querySelectorAll('.modal__badge').forEach(b => b.remove());
         if (data.badge) {
-            const badgeEl = document.createElement('span');
-            badgeEl.className = 'modal__badge';
-            badgeEl.textContent = data.badge;
-            modalType.insertAdjacentElement('afterend', badgeEl);
+            data.badge.split(',').map(b => b.trim()).filter(Boolean).forEach(b => {
+                const badgeEl = document.createElement('span');
+                badgeEl.className = 'modal__badge';
+                badgeEl.textContent = b;
+                modalType.insertAdjacentElement('afterend', badgeEl);
+            });
         }
 
         if (variations.length > 0) {
@@ -679,8 +723,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     if (p.photo) productData.photo = p.photo;
 
-                    const badgeClassMap = {'Новинка':'catalog-card__badge--new','Хит':'catalog-card__badge--hit','Акция':'catalog-card__badge--sale','Распродажа':'catalog-card__badge--promo'};
-                    const badgeHtml = p.badge ? '<span class="catalog-card__badge ' + (badgeClassMap[p.badge] || '') + '">' + escapeHtml(p.badge) + '</span>' : '';
+                    const badgeClassMap = {'Новинка':'catalog-card__badge--new','Хит':'catalog-card__badge--hit','Акция':'catalog-card__badge--sale','Распродажа':'catalog-card__badge--promo','Белый цемент':'catalog-card__badge--new','МК2':'catalog-card__badge--hit','МК3':'catalog-card__badge--hit'};
+                    const badges = (p.badge || '').split(',').map(b => b.trim()).filter(Boolean);
+                    const badgeHtml = badges.map(b => '<span class="catalog-card__badge ' + (badgeClassMap[b] || '') + '">' + escapeHtml(b) + '</span>').join('');
 
                     // Catalog card
                     const card = document.createElement('div');
@@ -697,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.innerHTML = `
                         <div class="catalog-card__img" style="${imgStyle}">
                             ${imgContent}
-                            ${badgeHtml}
+                            ${badgeHtml ? '<div class="catalog-card__badges">' + badgeHtml + '</div>' : ''}
                         </div>
                         <h3 class="catalog-card__name">${escapeHtml(p.name)}</h3>
                         <p class="catalog-card__desc">${escapeHtml(p.description || '')}</p>
@@ -733,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         popCard.innerHTML = `
                             <div class="product-card__img" style="${popImgStyle}">
                                 ${popImgContent}
-                                ${badgeHtml ? badgeHtml.replace('catalog-card__badge', 'product-card__badge-tag') : ''}
+                                ${badgeHtml ? '<div class="catalog-card__badges">' + badgeHtml.replace(/catalog-card__badge/g, 'product-card__badge-tag') + '</div>' : ''}
                             </div>
                             <div class="product-card__body">
                                 <h3 class="product-card__name">${escapeHtml(p.name)}</h3>
@@ -788,6 +833,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadPricelist();
 
+    // ===== LOAD PORTFOLIO =====
+    function loadPortfolio() {
+        fetch('/api/portfolio')
+            .then(r => r.json())
+            .then(data => {
+                const section = document.getElementById('portfolio');
+                if (!data.visible || !data.items || data.items.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+                section.style.display = '';
+                const grid = document.getElementById('portfolioGrid');
+                grid.innerHTML = '';
+
+                data.items.forEach(item => {
+                    let photos = [];
+                    try { photos = JSON.parse(item.photos); } catch(e) {}
+                    if (!Array.isArray(photos)) photos = [];
+
+                    const card = document.createElement('div');
+                    card.className = 'portfolio-card';
+
+                    let albumHtml = '';
+                    if (photos.length > 0) {
+                        const slidesHtml = photos.map(src =>
+                            '<img class="portfolio-card__slide" src="' + escapeHtml(src) + '" alt="' + escapeHtml(item.title) + '">'
+                        ).join('');
+                        const dotsHtml = photos.length > 1 ? '<div class="portfolio-card__dots">' +
+                            photos.map((_, i) => '<button class="portfolio-card__dot' + (i === 0 ? ' active' : '') + '" data-i="' + i + '"></button>').join('') +
+                            '</div>' : '';
+                        const arrowsHtml = photos.length > 1 ?
+                            '<button class="portfolio-card__arrow portfolio-card__arrow--prev">&#10094;</button>' +
+                            '<button class="portfolio-card__arrow portfolio-card__arrow--next">&#10095;</button>' : '';
+
+                        albumHtml = '<div class="portfolio-card__album">' +
+                            '<div class="portfolio-card__slides">' + slidesHtml + '</div>' +
+                            arrowsHtml + dotsHtml + '</div>';
+                    }
+
+                    card.innerHTML = albumHtml +
+                        '<div class="portfolio-card__body">' +
+                        '<div class="portfolio-card__title">' + escapeHtml(item.title) + '</div>' +
+                        (item.description ? '<div class="portfolio-card__desc">' + escapeHtml(item.description) + '</div>' : '') +
+                        '</div>';
+
+                    // Album sliding
+                    if (photos.length > 1) {
+                        let idx = 0;
+                        const slides = card.querySelector('.portfolio-card__slides');
+                        const dots = card.querySelectorAll('.portfolio-card__dot');
+                        const goTo = function(i) {
+                            idx = (i + photos.length) % photos.length;
+                            slides.style.transform = 'translateX(-' + (idx * 100) + '%)';
+                            dots.forEach(function(d, j) { d.classList.toggle('active', j === idx); });
+                        };
+                        card.querySelector('.portfolio-card__arrow--prev').addEventListener('click', function(e) { e.stopPropagation(); goTo(idx - 1); });
+                        card.querySelector('.portfolio-card__arrow--next').addEventListener('click', function(e) { e.stopPropagation(); goTo(idx + 1); });
+                        dots.forEach(function(d) { d.addEventListener('click', function(e) { e.stopPropagation(); goTo(Number(d.dataset.i)); }); });
+
+                        // Swipe
+                        var tx = 0;
+                        var album = card.querySelector('.portfolio-card__album');
+                        album.addEventListener('touchstart', function(e) { tx = e.changedTouches[0].screenX; }, {passive: true});
+                        album.addEventListener('touchend', function(e) {
+                            var diff = tx - e.changedTouches[0].screenX;
+                            if (Math.abs(diff) > 40) goTo(idx + (diff > 0 ? 1 : -1));
+                        });
+                    }
+
+                    // Click photo -> lightbox
+                    card.querySelectorAll('.portfolio-card__slide').forEach(function(img) {
+                        img.addEventListener('click', function() {
+                            openPhotoLightbox(img.src, photos);
+                        });
+                    });
+
+                    grid.appendChild(card);
+                });
+            })
+            .catch(function() {});
+    }
+
+    loadPortfolio();
+
     // ===== FAQ =====
     const faqItems = document.querySelectorAll('.faq__item');
     faqItems.forEach(item => {
@@ -822,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    document.querySelectorAll('.product-card, .catalog-card, .service-card, .review-card, .faq__item, .contacts__item').forEach(el => {
+    document.querySelectorAll('.product-card, .catalog-card, .service-card, .review-card, .portfolio-card, .faq__item, .contacts__item').forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
@@ -830,18 +959,75 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ===== PHOTO LIGHTBOX =====
-function openPhotoLightbox(src) {
+// ===== PHOTO LIGHTBOX WITH NAVIGATION =====
+var lightboxImages = [];
+var lightboxIndex = 0;
+
+function openPhotoLightbox(src, images) {
     const lb = document.getElementById('photoLightbox');
-    document.getElementById('lightboxImg').src = src;
+    if (images && images.length) {
+        lightboxImages = images;
+        lightboxIndex = images.indexOf(src);
+        if (lightboxIndex < 0) lightboxIndex = 0;
+    } else {
+        lightboxImages = [src];
+        lightboxIndex = 0;
+    }
+    document.getElementById('lightboxImg').src = lightboxImages[lightboxIndex];
+    updateLightboxCounter();
     lb.classList.add('photo-lightbox--active');
     document.body.style.overflow = 'hidden';
 }
+
+function lightboxNav(dir) {
+    if (lightboxImages.length <= 1) return;
+    lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+    document.getElementById('lightboxImg').src = lightboxImages[lightboxIndex];
+    updateLightboxCounter();
+}
+
+function updateLightboxCounter() {
+    const counter = document.getElementById('lightboxCounter');
+    if (lightboxImages.length > 1) {
+        counter.textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
+    } else {
+        counter.textContent = '';
+    }
+    // Hide/show arrows
+    document.querySelectorAll('.photo-lightbox__arrow').forEach(a => {
+        a.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
+    });
+}
+
+function onLightboxClick(e) {
+    if (e.target === e.currentTarget) closePhotoLightbox();
+}
+
 function closePhotoLightbox() {
     const lb = document.getElementById('photoLightbox');
     lb.classList.remove('photo-lightbox--active');
     document.body.style.overflow = '';
 }
+
+// Swipe on lightbox
+(function() {
+    const lb = document.getElementById('photoLightbox');
+    let tx = 0;
+    lb.addEventListener('touchstart', (e) => { tx = e.changedTouches[0].screenX; }, {passive: true});
+    lb.addEventListener('touchend', (e) => {
+        const diff = tx - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 40) lightboxNav(diff > 0 ? 1 : -1);
+    });
+})();
+
+// Keyboard navigation for lightbox
+document.addEventListener('keydown', (e) => {
+    const lb = document.getElementById('photoLightbox');
+    if (!lb.classList.contains('photo-lightbox--active')) return;
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+    if (e.key === 'Escape') closePhotoLightbox();
+});
 
 // ===== CONTACT CHOICE POPUP =====
 function openContactChoice() {

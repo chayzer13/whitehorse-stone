@@ -37,7 +37,7 @@ app.get('/admin', (req, res) => {
 app.use('/api', (req, res, next) => {
     if (req.path.startsWith('/auth')) return next();
     if (req.method === 'PUT' || req.method === 'DELETE') return requireAuth(req, res, next);
-    if (req.method === 'POST' && (req.path.startsWith('/products') || req.path.startsWith('/services'))) {
+    if (req.method === 'POST' && (req.path.startsWith('/products') || req.path.startsWith('/services') || req.path.startsWith('/portfolio'))) {
         return requireAuth(req, res, next);
     }
     // GET calculations — только для админа
@@ -56,6 +56,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/calculations', require('./routes/calculations'));
 app.use('/api/services', require('./routes/services'));
+app.use('/api/portfolio', require('./routes/portfolio'));
 
 // Любой другой маршрут → index.html
 // Исключение: запросы к /admin.html → 404 (файл скрыт, правильный путь /admin)
